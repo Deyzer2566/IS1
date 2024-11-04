@@ -1,6 +1,7 @@
 package ru.kozodoy.IS1.Services;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,9 +11,19 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.kozodoy.IS1.Entities.Coordinates;
 import ru.kozodoy.IS1.Entities.Flat;
 import ru.kozodoy.IS1.Entities.House;
+import ru.kozodoy.IS1.Management.BadTokenException;
+import ru.kozodoy.IS1.Management.ChangeType;
+import ru.kozodoy.IS1.Management.History;
+import ru.kozodoy.IS1.Management.UserService;
+import ru.kozodoy.IS1.Management.UsersFlats;
+import ru.kozodoy.IS1.Management.Userz;
+import ru.kozodoy.IS1.Management.WrongFlatOwnerException;
 import ru.kozodoy.IS1.Repositories.CoordinatesRepository;
 import ru.kozodoy.IS1.Repositories.FlatRepository;
+import ru.kozodoy.IS1.Repositories.HistoryRepository;
 import ru.kozodoy.IS1.Repositories.HouseRepository;
+import ru.kozodoy.IS1.Repositories.UserRepository;
+import ru.kozodoy.IS1.Repositories.UsersFlatsRepository;
 
 @Service
 public class FlatService {
@@ -24,6 +35,15 @@ public class FlatService {
 
     @Autowired
     CoordinatesRepository coordinatesRepository;
+
+    @Autowired
+    UsersFlatsRepository usersFlatsRepository;
+
+    @Autowired
+    HistoryRepository historyRepository;
+
+    @Autowired
+    UserService userService;
 
     public Optional<Flat> findById(Long id){
         return flatRepository.findById(id);
@@ -50,32 +70,79 @@ public class FlatService {
         return flat;
     }
 
-    public Flat addFlat(Flat flat) {
-        return flatRepository.save(connectFlatToOtherEntities(flat));
+    @Transactional
+    public Flat addFlat(Userz user, Flat flat) {
+        Flat flat1 = flatRepository.save(connectFlatToOtherEntities(flat));
+        Optional<UsersFlats> usersFlats = usersFlatsRepository.findByUserAndFlat(user, flat1);
+        if(!usersFlats.isPresent())
+            usersFlatsRepository.save(new UsersFlats(user, flat1));
+        historyRepository.save(new History(user, flat1, ChangeType.CREATE));
+        return flat1;
     }
 
-    public Flat updateFlat(Long id, Flat flat) {
+    public Flat addFlatByToken(String token, Flat flat) throws BadTokenException {
+        Userz user;
+        try{
+            user = userService.getUserByToken(token);
+        } catch (NoSuchElementException e){
+            throw new BadTokenException();
+        }
+        return addFlat(user, flat);
+    }
+
+    @Transactional
+    public Flat updateFlat(Userz user, Long id, Flat flat) throws WrongFlatOwnerException {
+        if(!flatRepository.findById(id).isPresent()){
+            return addFlat(user, flat);
+        }
         Coordinates coordinates = flatRepository.findById(id).get().getCoordinates();
         House house = flatRepository.findById(id).get().getHouse();
         flat.setId(id);
+        if(!usersFlatsRepository.findByUserAndFlat(user, flatRepository.findById(id).get()).isPresent())
+            throw new WrongFlatOwnerException();
         Flat flat1 = flatRepository.save(connectFlatToOtherEntities(flat));
         if(flatRepository.findByCoordinates(coordinates).size() == 0)
             coordinatesRepository.delete(coordinates);
         if(flatRepository.findByHouse(house).size() == 0)
             houseRepository.delete(house);
+        historyRepository.save(new History(user, flat1, ChangeType.UPDATE));
         return flat1;
     }
 
+    public Flat updateFlatByToken(String token, Long id, Flat flat) throws WrongFlatOwnerException, BadTokenException{
+        Userz user;
+        try{
+            user = userService.getUserByToken(token);
+        } catch (NoSuchElementException e){
+            throw new BadTokenException();
+        }
+        return updateFlat(user, id, flat);
+    }
+
     @Transactional
-    public boolean deleteFlat(Long id) {
+    public boolean deleteFlat(Userz user, Long id) throws WrongFlatOwnerException {
         Coordinates coordinates = flatRepository.findById(id).get().getCoordinates();
         House house = flatRepository.findById(id).get().getHouse();
-        flatRepository.delete(flatRepository.findById(id).get());
+        Flat flat = flatRepository.findById(id).get();
+        if(!usersFlatsRepository.findByUserAndFlat(user, flat).isPresent())
+            throw new WrongFlatOwnerException();
+        flatRepository.delete(flat);
         if(flatRepository.findByCoordinates(coordinates).size() == 0)
             coordinatesRepository.delete(coordinates);
         if(flatRepository.findByHouse(house).size() == 0)
             houseRepository.delete(house);
+        historyRepository.save(new History(user, flat, ChangeType.DELETE));
         return true;
+    }
+
+    public boolean deleteFlatByToken(String token, Long id) throws WrongFlatOwnerException, BadTokenException {
+        Userz user;
+        try{
+            user = userService.getUserByToken(token);
+        } catch (NoSuchElementException e){
+            throw new BadTokenException();
+        }
+        return deleteFlat(user, id);
     }
 
 }

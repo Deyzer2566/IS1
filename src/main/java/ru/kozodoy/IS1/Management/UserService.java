@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import ru.kozodoy.IS1.Repositories.ApplicationRepository;
 import ru.kozodoy.IS1.Repositories.UserRepository;
+import ru.kozodoy.IS1.Repositories.UsersFlatsRepository;
 
 class TokenInfo {
     String token;
@@ -39,6 +40,9 @@ public class UserService {
 
     @Autowired
     ApplicationRepository applicationRepository;
+
+    @Autowired
+    UsersFlatsRepository usersFlatsRepository;
 
     MessageDigest passwordEncoder;
 
@@ -107,8 +111,7 @@ public class UserService {
         }
     }
 
-    private Userz getUserByToken(String token){
-        System.out.println(tokensInv.get(token));
+    public Userz getUserByToken(String token) throws NoSuchElementException{
         return userRepository.findByLogin(tokensInv.get(token)).get();
     }
 

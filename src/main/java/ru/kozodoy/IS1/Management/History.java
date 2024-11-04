@@ -23,9 +23,9 @@ public class History {
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.MERGE})
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     @NotNull
-    Userz Userz;
+    Userz userz;
 
-    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.MERGE})
+    @ManyToOne()
     @JoinColumn(name = "flat_id", referencedColumnName = "id")
     @NotNull
     Flat flat;
@@ -34,4 +34,13 @@ public class History {
     @NotNull
     private ChangeType changeType;
 
+    public History(Userz user, Flat flat, ChangeType changeType){
+        this.userz = user;
+        this.flat = flat;
+        this.changeType = changeType;
+    }
+
+    public History(){
+        
+    }
 }
