@@ -22,7 +22,7 @@ public class Userz { // postgres is a shit
     String password;
 
     @NotNull
-    boolean _isAdmin;
+    boolean isAdmin;
 
     public void setLogin(String login){
         this.login = login;
@@ -40,11 +40,11 @@ public class Userz { // postgres is a shit
         return password;
     }
 
-    public boolean isAdmin(){
-        return _isAdmin;
+    public boolean getIsAdmin(){
+        return isAdmin;
     }
 
-    public void setIsAdmin(boolean _isAdmin){
-        this._isAdmin=_isAdmin;
+    public void setIsAdmin(boolean isAdmin){
+        this.isAdmin=isAdmin;
     }
 }

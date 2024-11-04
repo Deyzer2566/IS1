@@ -25,4 +25,12 @@ public class Application {
     public Application(Userz userz){
         this.userz = userz;
     }
+
+    public Long getId(){
+        return id;
+    }
+
+    public Userz getUserz(){
+        return userz;
+    }
 }

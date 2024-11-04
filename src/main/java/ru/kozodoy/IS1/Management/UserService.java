@@ -8,6 +8,7 @@ import java.time.Duration;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -115,11 +116,42 @@ public class UserService {
         return userRepository.findByLogin(tokensInv.get(token)).get();
     }
 
-    public void makeAdmin(String token) throws AlreadyAdminException{
-        Userz user = getUserByToken(token);
-        if(!user.isAdmin())
+    public void makeAdminApplication(String token) throws AlreadyAdminException, BadTokenException{
+        Userz user;
+        try{
+            user = getUserByToken(token);
+        } catch (NoSuchElementException e) {
+            throw new BadTokenException();
+        }
+        if(!user.getIsAdmin())
             applicationRepository.save(new Application(user));
         else
             throw new AlreadyAdminException();
+    }
+
+    public List<Application> getApplications(String token) throws BadTokenException {
+        Userz user;
+        try{
+            user = getUserByToken(token);
+        } catch (NoSuchElementException e) {
+            throw new BadTokenException();
+        }
+        if(!user.getIsAdmin())
+            throw new BadTokenException();
+        return applicationRepository.findAll();
+    }
+
+    public void makeAdmin(String token, Long id) throws BadTokenException, NoSuchElementException{
+        Userz user;
+        try{
+            user = getUserByToken(token);
+        } catch (NoSuchElementException e) {
+            throw new BadTokenException();
+        }
+        if(!user.getIsAdmin())
+            throw new BadTokenException();
+        Application application = applicationRepository.findById(id).get();
+        application.userz.setIsAdmin(true);
+        applicationRepository.save(application);
     }
 }
