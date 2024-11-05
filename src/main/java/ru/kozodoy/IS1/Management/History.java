@@ -1,5 +1,7 @@
 package ru.kozodoy.IS1.Management;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -34,10 +36,14 @@ public class History {
     @NotNull
     private ChangeType changeType;
 
+    @NotNull
+    LocalDateTime time;
+
     public History(Userz user, Flat flat, ChangeType changeType){
         this.userz = user;
         this.flat = flat;
         this.changeType = changeType;
+        this.time = LocalDateTime.now();
     }
 
     public History(){

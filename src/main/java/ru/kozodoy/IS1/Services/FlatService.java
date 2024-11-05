@@ -98,7 +98,7 @@ public class FlatService {
         Coordinates coordinates = flatRepository.findById(id).get().getCoordinates();
         House house = flatRepository.findById(id).get().getHouse();
         flat.setId(id);
-        if(!usersFlatsRepository.findByUserAndFlat(user, flatRepository.findById(id).get()).isPresent())
+        if(!usersFlatsRepository.findByUserAndFlat(user, flatRepository.findById(id).get()).isPresent() && !user.getIsAdmin())
             throw new WrongFlatOwnerException();
         Flat flat1 = flatRepository.save(connectFlatToOtherEntities(flat));
         if(flatRepository.findByCoordinates(coordinates).size() == 0)
@@ -124,7 +124,7 @@ public class FlatService {
         Coordinates coordinates = flatRepository.findById(id).get().getCoordinates();
         House house = flatRepository.findById(id).get().getHouse();
         Flat flat = flatRepository.findById(id).get();
-        if(!usersFlatsRepository.findByUserAndFlat(user, flat).isPresent())
+        if(!usersFlatsRepository.findByUserAndFlat(user, flat).isPresent() && !user.getIsAdmin())
             throw new WrongFlatOwnerException();
         flatRepository.delete(flat);
         if(flatRepository.findByCoordinates(coordinates).size() == 0)
