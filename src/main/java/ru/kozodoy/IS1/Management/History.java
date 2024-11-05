@@ -11,10 +11,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.NotNull;
 import ru.kozodoy.IS1.Entities.Flat;
-import ru.kozodoy.IS1.Entities.Furnish;
 
 @Entity
 public class History {

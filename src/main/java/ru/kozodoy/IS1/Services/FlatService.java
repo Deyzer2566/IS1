@@ -22,7 +22,6 @@ import ru.kozodoy.IS1.Repositories.CoordinatesRepository;
 import ru.kozodoy.IS1.Repositories.FlatRepository;
 import ru.kozodoy.IS1.Repositories.HistoryRepository;
 import ru.kozodoy.IS1.Repositories.HouseRepository;
-import ru.kozodoy.IS1.Repositories.UserRepository;
 import ru.kozodoy.IS1.Repositories.UsersFlatsRepository;
 
 @Service
