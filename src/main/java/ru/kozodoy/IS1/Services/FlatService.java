@@ -1,5 +1,6 @@
 package ru.kozodoy.IS1.Services;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -71,6 +72,7 @@ public class FlatService {
 
     @Transactional
     public Flat addFlat(Userz user, Flat flat) {
+        flat.setCreationDate(LocalDateTime.now());
         Flat flat1 = flatRepository.save(connectFlatToOtherEntities(flat));
         Optional<UsersFlats> usersFlats = usersFlatsRepository.findByUserAndFlat(user, flat1);
         if(!usersFlats.isPresent())
