@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -20,51 +21,39 @@ import ru.kozodoy.IS1.Services.FlatService;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-class FlatAndToken{
-    Flat flat;
-    String token;
-    public String getToken(){
-        return token;
-    }
-    public Flat getFlat(){
-        return flat;
-    }
-}
-
-class FlatAndMessage{
+class FlatAndMessage {
     Flat flat;
     String message;
-    public FlatAndMessage(Flat flat, String message){
+
+    public FlatAndMessage(Flat flat, String message) {
         this.flat = flat;
         this.message = message;
     }
-    public Flat getFlat(){
+
+    public Flat getFlat() {
         return flat;
     }
-    public String getMessage(){
+
+    public String getMessage() {
         return message;
     }
 }
 
-class Token{
-    String token;
-    public String getToken(){
-        return token;
-    }
-}
-
-class MessageDeletedAndMessage{
+class MessageDeletedAndMessage {
     boolean deleted;
     String message;
-    public boolean getDeleted(){
-        return deleted;
-    }
-    public String getMessage(){
-        return message;
-    }
-    public MessageDeletedAndMessage(boolean deleted, String message){
+
+    public MessageDeletedAndMessage(boolean deleted, String message) {
         this.deleted = deleted;
         this.message = message;
+    }
+
+    public boolean getDeleted() {
+        return deleted;
+    }
+
+    public String getMessage() {
+        return message;
     }
 }
 
@@ -81,47 +70,46 @@ public class FlatController {
     }
 
     @GetMapping
-    public List<Flat> getAllFlats(){
+    public List<Flat> getAllFlats() {
         return flatService.findAll();
     }
 
     @PostMapping
-    public ResponseEntity<FlatAndMessage> addFlat(@RequestBody FlatAndToken flatAndToken) {
+    public ResponseEntity<FlatAndMessage> addFlat(@RequestBody Flat flat, @RequestHeader("Authorization") String token) {
         try {
             return ResponseEntity.ok().body(new FlatAndMessage(
-                flatService.addFlatByToken(flatAndToken.getToken(), flatAndToken.getFlat()),
+                flatService.addFlatByToken(token.replace("Bearer ", ""), flat),
                 "Ok"));
         } catch (BadTokenException e) {
-            return ResponseEntity.status(HttpStatusCode.valueOf(401)).body(new FlatAndMessage(null,"Bad token"));
+            return ResponseEntity.status(HttpStatusCode.valueOf(401)).body(new FlatAndMessage(null, "Bad token"));
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<FlatAndMessage> updateFlat(@PathVariable Long id, @RequestBody FlatAndToken flatAndToken){
+    public ResponseEntity<FlatAndMessage> updateFlat(@PathVariable Long id, @RequestBody Flat flat, @RequestHeader("Authorization") String token) {
         try {
             return ResponseEntity.ok().body(new FlatAndMessage(
-                flatService.updateFlatByToken(flatAndToken.getToken(), id, flatAndToken.getFlat()),
+                flatService.updateFlatByToken(token.replace("Bearer ", ""), id, flat),
                 "Ok"));
         } catch (BadTokenException e) {
-            return ResponseEntity.status(HttpStatusCode.valueOf(403)).body(new FlatAndMessage(null,"Bad token"));
+            return ResponseEntity.status(HttpStatusCode.valueOf(403)).body(new FlatAndMessage(null, "Bad token"));
         } catch (WrongFlatOwnerException e) {
-            return ResponseEntity.status(HttpStatusCode.valueOf(401)).body(new FlatAndMessage(null,"Wrong flat bro... Arent u trying fanum tax that bro??"));
+            return ResponseEntity.status(HttpStatusCode.valueOf(401)).body(new FlatAndMessage(null, "Wrong flat bro... Arent u trying fanum tax that bro??"));
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<MessageDeletedAndMessage> deleteFlat(@PathVariable Long id, @RequestBody Token token){
+    public ResponseEntity<MessageDeletedAndMessage> deleteFlat(@PathVariable Long id, @RequestHeader("Authorization") String token) {
         try {
             return ResponseEntity.ok().body(new MessageDeletedAndMessage(
-                flatService.deleteFlatByToken(token.getToken(), id),
+                flatService.deleteFlatByToken(token.replace("Bearer ", ""), id),
                 "Ok"));
         } catch (BadTokenException e) {
-            return ResponseEntity.status(HttpStatusCode.valueOf(403)).body(new MessageDeletedAndMessage(false,"Bad token"));
+            return ResponseEntity.status(HttpStatusCode.valueOf(403)).body(new MessageDeletedAndMessage(false, "Bad token"));
         } catch (WrongFlatOwnerException e) {
-            return ResponseEntity.status(HttpStatusCode.valueOf(401)).body(new MessageDeletedAndMessage(false,"Wrong flat bro... Arent u trying fanum tax that bro??"));
+            return ResponseEntity.status(HttpStatusCode.valueOf(401)).body(new MessageDeletedAndMessage(false, "Wrong flat bro... Arent u trying fanum tax that bro??"));
         } catch (NoSuchElementException e) {
-            return ResponseEntity.status(HttpStatusCode.valueOf(404)).body(new MessageDeletedAndMessage(false,"Bruh..."));
+            return ResponseEntity.status(HttpStatusCode.valueOf(404)).body(new MessageDeletedAndMessage(false, "Bruh..."));
         }
     }
-
 }

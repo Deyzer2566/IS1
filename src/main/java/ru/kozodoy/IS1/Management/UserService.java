@@ -21,14 +21,17 @@ import ru.kozodoy.IS1.Repositories.UsersFlatsRepository;
 class TokenInfo {
     String token;
     LocalDateTime creationTime;
-    public TokenInfo(String token){
+
+    public TokenInfo(String token) {
         this.token = token;
         creationTime = LocalDateTime.now();
     }
-    public String getToken(){
+
+    public String getToken() {
         return token;
     }
-    public LocalDateTime getCreationTime(){
+
+    public LocalDateTime getCreationTime() {
         return creationTime;
     }
 }
@@ -51,24 +54,24 @@ public class UserService {
 
     LinkedList<TokenInfo> tokenInfos;
 
-    public UserService(){
+    public UserService() {
         tokensInv = new HashMap<>();
         tokenInfos = new LinkedList<>();
-        try{
+        try {
             passwordEncoder = MessageDigest.getInstance("MD5");
-        } catch (NoSuchAlgorithmException e){
-
+        } catch (NoSuchAlgorithmException e) {
+            // Handle exception
         }
     }
 
-    public String getMD5(String str){
-        byte [] messageDigest = passwordEncoder.digest(str.getBytes(StandardCharsets.UTF_8));
+    public String getMD5(String str) {
+        byte[] messageDigest = passwordEncoder.digest(str.getBytes(StandardCharsets.UTF_8));
         return Base64.getEncoder().encodeToString(messageDigest);
     }
 
-    private TokenInfo generateToken(String login, String password){
-        String token = getMD5(login+password+LocalDateTime.now().toString());
-        tokensInv.put(token,login);
+    private TokenInfo generateToken(String login, String password) {
+        String token = getMD5(login + password + LocalDateTime.now().toString());
+        tokensInv.put(token, login);
         TokenInfo tokenInfo = new TokenInfo(token);
         tokenInfos.push(tokenInfo);
         return tokenInfo;
@@ -78,78 +81,83 @@ public class UserService {
         deleteTokens();
         password = getMD5(password);
         try {
-            if (userRepository.findByLogin(login).get().getPassword().equals(password)){
+            if (userRepository.findByLogin(login).get().getPassword().equals(password)) {
                 return generateToken(login, password);
-            }
-            else
+            } else {
                 throw new WrongPasswordException();
-        } catch(NoSuchElementException e) {
+            }
+        } catch (NoSuchElementException e) {
             throw new WrongPasswordException();
         }
     }
 
     public TokenInfo register(String login, String password) throws LoginOccupiedException, PasswordOccupiedException {
         password = getMD5(password);
-        if(userRepository.findByLogin(login).isPresent())
+        if (userRepository.findByLogin(login).isPresent()) {
             throw new LoginOccupiedException();
-        if(userRepository.findByPassword(password).isPresent())
-            throw new PasswordOccupiedException("Пароль занят пользователем "+userRepository.findByPassword(password).get().getLogin());
+        }
+        if (userRepository.findByPassword(password).isPresent()) {
+            throw new PasswordOccupiedException("Пароль занят пользователем " + userRepository.findByPassword(password).get().getLogin());
+        }
         Userz newUser = new Userz();
         newUser.setLogin(login);
         newUser.setPassword(password);
-        newUser.setIsAdmin(userRepository.count()==0);
+        newUser.setIsAdmin(userRepository.count() == 0);
         userRepository.save(newUser);
         return generateToken(login, password);
     }
 
-    public void deleteTokens(){
+    public void deleteTokens() {
         try {
-            while(Duration.between(LocalDateTime.now(), tokenInfos.getFirst().getCreationTime()).toHours()>=1){
+            while (Duration.between(LocalDateTime.now(), tokenInfos.getFirst().getCreationTime()).toHours() >= 1) {
                 tokensInv.remove(tokenInfos.removeFirst().getToken());
             }
-        } catch (NoSuchElementException e){
-            
+        } catch (NoSuchElementException e) {
+            // Handle exception
         }
     }
 
-    public Userz getUserByToken(String token) throws NoSuchElementException{
+    public Userz getUserByToken(String token) throws NoSuchElementException {
         return userRepository.findByLogin(tokensInv.get(token)).get();
     }
 
-    public void makeAdminApplication(String token) throws AlreadyAdminException, BadTokenException{
+    public void makeAdminApplication(String token) throws AlreadyAdminException, BadTokenException {
         Userz user;
-        try{
+        try {
             user = getUserByToken(token);
         } catch (NoSuchElementException e) {
             throw new BadTokenException();
         }
-        if(!user.getIsAdmin())
+        if (!user.getIsAdmin()) {
             applicationRepository.save(new Application(user));
-        else
+        } else {
             throw new AlreadyAdminException();
+        }
     }
 
     public List<Application> getApplications(String token) throws BadTokenException {
         Userz user;
-        try{
+        try {
             user = getUserByToken(token);
         } catch (NoSuchElementException e) {
             throw new BadTokenException();
         }
-        if(!user.getIsAdmin())
+        if (!user.getIsAdmin()) {
             throw new BadTokenException();
+        }
         return applicationRepository.findAll();
     }
 
-    public void makeAdmin(String token, Long id) throws BadTokenException, NoSuchElementException{
+    public void makeAdmin(String token, Long id) throws BadTokenException, NoSuchElementException {
         Userz user;
-        try{
+        try {
             user = getUserByToken(token);
         } catch (NoSuchElementException e) {
             throw new BadTokenException();
         }
-        if(!user.getIsAdmin())
+        if (!user.getIsAdmin()) {
             throw new BadTokenException();
+        }
         Application application = applicationRepository.findById(id).get();
         application.userz.setIsAdmin(true);
         applicationRepository.save(application);
