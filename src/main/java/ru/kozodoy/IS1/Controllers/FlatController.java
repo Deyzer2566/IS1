@@ -40,16 +40,10 @@ class FlatAndMessage {
 }
 
 class MessageDeletedAndMessage {
-    boolean deleted;
     String message;
 
-    public MessageDeletedAndMessage(boolean deleted, String message) {
-        this.deleted = deleted;
+    public MessageDeletedAndMessage(String message) {
         this.message = message;
-    }
-
-    public boolean getDeleted() {
-        return deleted;
     }
 
     public String getMessage() {
@@ -92,7 +86,7 @@ public class FlatController {
                 flatService.updateFlatByToken(token.replace("Bearer ", ""), id, flat),
                 "Ok"));
         } catch (BadTokenException e) {
-            return ResponseEntity.status(HttpStatusCode.valueOf(403)).body(new FlatAndMessage(null, "Bad token"));
+            return ResponseEntity.status(HttpStatusCode.valueOf(401)).body(new FlatAndMessage(null, "Bad token"));
         } catch (WrongFlatOwnerException e) {
             return ResponseEntity.status(HttpStatusCode.valueOf(401)).body(new FlatAndMessage(null, "Wrong flat bro... Arent u trying fanum tax that bro??"));
         }
@@ -101,15 +95,19 @@ public class FlatController {
     @DeleteMapping("/{id}")
     public ResponseEntity<MessageDeletedAndMessage> deleteFlat(@PathVariable Long id, @RequestHeader("Authorization") String token) {
         try {
-            return ResponseEntity.ok().body(new MessageDeletedAndMessage(
-                flatService.deleteFlatByToken(token.replace("Bearer ", ""), id),
-                "Ok"));
+            flatService.deleteFlatByToken(token.replace("Bearer ", ""), id);
+            return ResponseEntity.ok().body(new MessageDeletedAndMessage("Ok"));
         } catch (BadTokenException e) {
-            return ResponseEntity.status(HttpStatusCode.valueOf(403)).body(new MessageDeletedAndMessage(false, "Bad token"));
+            return ResponseEntity.status(HttpStatusCode.valueOf(401)).body(new MessageDeletedAndMessage( "Bad token"));
         } catch (WrongFlatOwnerException e) {
-            return ResponseEntity.status(HttpStatusCode.valueOf(401)).body(new MessageDeletedAndMessage(false, "Wrong flat bro... Arent u trying fanum tax that bro??"));
+            return ResponseEntity.status(HttpStatusCode.valueOf(401)).body(new MessageDeletedAndMessage( "Wrong flat bro... Arent u trying fanum tax that bro??"));
         } catch (NoSuchElementException e) {
-            return ResponseEntity.status(HttpStatusCode.valueOf(404)).body(new MessageDeletedAndMessage(false, "Bruh..."));
+            return ResponseEntity.status(HttpStatusCode.valueOf(404)).body(new MessageDeletedAndMessage( "Bruh..."));
         }
+    }
+
+    @GetMapping("/houses")
+    public ResponseEntity<List<House>> getHouses(){
+        return ResponseEntity.ok().body(flatService.getHouses());
     }
 }

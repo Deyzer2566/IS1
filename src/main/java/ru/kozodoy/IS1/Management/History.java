@@ -12,7 +12,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotNull;
-import ru.kozodoy.IS1.Entities.Flat;
 
 @Entity
 public class History {
@@ -25,10 +24,7 @@ public class History {
     @NotNull
     Userz userz;
 
-    @ManyToOne()
-    @JoinColumn(name = "flat_id", referencedColumnName = "id")
-    @NotNull
-    Flat flat;
+    Long flat_id;
 
     @Enumerated(EnumType.STRING)
     @NotNull
@@ -37,9 +33,9 @@ public class History {
     @NotNull
     LocalDateTime time;
 
-    public History(Userz user, Flat flat, ChangeType changeType){
+    public History(Userz user, Long flat_id, ChangeType changeType){
         this.userz = user;
-        this.flat = flat;
+        this.flat_id = flat_id;
         this.changeType = changeType;
         this.time = LocalDateTime.now();
     }

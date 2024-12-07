@@ -54,6 +54,8 @@ public class FlatService {
     }
 
     private Flat connectFlatToOtherEntities(Flat flat) {
+        if(flat.getHouse() == null)
+            return flat;
         Optional<House> house = houseRepository.findByNameAndYearAndNumberOfFloorsAndNumberOfFlatsOnFloorAndNumberOfLifts(
             flat.getHouse().getName(),
             flat.getHouse().getYear(),
@@ -62,11 +64,6 @@ public class FlatService {
             flat.getHouse().getNumberOfLifts());
         if (house.isPresent())
             flat.setHouse(house.get());
-        Optional<Coordinates> coordinates = coordinatesRepository.findByXAndY(
-            flat.getCoordinates().getX(),
-            flat.getCoordinates().getY());
-        if (coordinates.isPresent())
-            flat.setCoordinates(coordinates.get());
         return flat;
     }
 
@@ -77,7 +74,7 @@ public class FlatService {
         Optional<UsersFlats> usersFlats = usersFlatsRepository.findByUserAndFlat(user, flat1);
         if(!usersFlats.isPresent())
             usersFlatsRepository.save(new UsersFlats(user, flat1));
-        historyRepository.save(new History(user, flat1, ChangeType.CREATE));
+        historyRepository.save(new History(user, flat1.getId(), ChangeType.CREATE));
         return flat1;
     }
 
@@ -96,17 +93,14 @@ public class FlatService {
         if(!flatRepository.findById(id).isPresent()){
             return addFlat(user, flat);
         }
-        Coordinates coordinates = flatRepository.findById(id).get().getCoordinates();
         House house = flatRepository.findById(id).get().getHouse();
         flat.setId(id);
         if(!usersFlatsRepository.findByUserAndFlat(user, flatRepository.findById(id).get()).isPresent() && !user.getIsAdmin())
             throw new WrongFlatOwnerException();
         Flat flat1 = flatRepository.save(connectFlatToOtherEntities(flat));
-        if(flatRepository.findByCoordinates(coordinates).size() == 0)
-            coordinatesRepository.delete(coordinates);
         if(flatRepository.findByHouse(house).size() == 0)
             houseRepository.delete(house);
-        historyRepository.save(new History(user, flat1, ChangeType.UPDATE));
+        historyRepository.save(new History(user, flat1.getId(), ChangeType.UPDATE));
         return flat1;
     }
 
@@ -121,29 +115,29 @@ public class FlatService {
     }
 
     @Transactional
-    public boolean deleteFlat(Userz user, Long id) throws WrongFlatOwnerException {
-        Coordinates coordinates = flatRepository.findById(id).get().getCoordinates();
+    public void deleteFlat(Userz user, Long id) throws WrongFlatOwnerException {
         House house = flatRepository.findById(id).get().getHouse();
         Flat flat = flatRepository.findById(id).get();
         if(!usersFlatsRepository.findByUserAndFlat(user, flat).isPresent() && !user.getIsAdmin())
             throw new WrongFlatOwnerException();
-        flatRepository.delete(flat);
-        if(flatRepository.findByCoordinates(coordinates).size() == 0)
-            coordinatesRepository.delete(coordinates);
-        if(flatRepository.findByHouse(house).size() == 0)
+        usersFlatsRepository.delete(usersFlatsRepository.findByFlat(flat).get(0));
+        if(flat.getHouse() != null && flatRepository.findByHouse(house).size() == 0)
             houseRepository.delete(house);
-        historyRepository.save(new History(user, flat, ChangeType.DELETE));
-        return true;
+        historyRepository.save(new History(user, flat.getId(), ChangeType.DELETE));
     }
 
-    public boolean deleteFlatByToken(String token, Long id) throws WrongFlatOwnerException, BadTokenException {
+    public void deleteFlatByToken(String token, Long id) throws WrongFlatOwnerException, BadTokenException {
         Userz user;
         try{
             user = userService.getUserByToken(token);
         } catch (NoSuchElementException e){
             throw new BadTokenException();
         }
-        return deleteFlat(user, id);
+        deleteFlat(user, id);
+    }
+
+    public List<House> getHouses() {
+        return houseRepository.findAll();
     }
 
 }

@@ -94,7 +94,7 @@ public class UserService {
     public TokenInfo register(String login, String password) throws LoginOccupiedException, PasswordOccupiedException {
         password = getMD5(password);
         if (userRepository.findByLogin(login).isPresent()) {
-            throw new LoginOccupiedException();
+            throw new LoginOccupiedException("Логин занят!");
         }
         if (userRepository.findByPassword(password).isPresent()) {
             throw new PasswordOccupiedException("Пароль занят пользователем " + userRepository.findByPassword(password).get().getLogin());

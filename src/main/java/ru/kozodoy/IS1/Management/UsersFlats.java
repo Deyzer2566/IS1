@@ -15,12 +15,12 @@ public class UsersFlats {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne()
     @JoinColumn(name = "user_id")
     Userz user;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name="flat_id")
+    @JoinColumn(name = "flat_id", referencedColumnName = "id")
     Flat flat;
 
     public Userz getUser(){

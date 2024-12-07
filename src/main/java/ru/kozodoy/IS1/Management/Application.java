@@ -14,7 +14,7 @@ public class Application {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.MERGE})
+    @OneToOne()
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     Userz userz;
 

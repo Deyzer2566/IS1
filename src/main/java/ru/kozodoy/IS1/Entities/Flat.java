@@ -20,7 +20,7 @@ public class Flat {
     private String name; // Поле не может быть null, Строка не может быть пустой
 
     @NotNull
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE,CascadeType.REFRESH})
+    @OneToOne(cascade = {CascadeType.ALL})
     @JoinColumn(name = "coordinates_id", referencedColumnName = "id")
     private Coordinates coordinates; // Поле не может быть null
 
