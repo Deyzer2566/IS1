@@ -1,5 +1,6 @@
 package ru.kozodoy.IS1.Management;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -30,10 +31,12 @@ class AuthorizationInfo {
 class TokenRequestResponse {
     String token;
     String message;
+    Boolean isAdmin;
 
-    public TokenRequestResponse(String token, String message) {
+    public TokenRequestResponse(String token, String message, Boolean isAdmin) {
         this.token = token;
         this.message = message;
+        this.isAdmin = isAdmin;
     }
 
     public String getToken() {
@@ -42,6 +45,10 @@ class TokenRequestResponse {
 
     public String getMessage() {
         return message;
+    }
+
+    public Boolean getIsAdmin() {
+        return isAdmin;
     }
 }
 
@@ -60,11 +67,28 @@ class SetAdminResponse {
     }
 }
 
+class ApplicationDTO {
+    private Long id;
+    private String userName;
+    public ApplicationDTO(Long id, String userName){
+        this.id = id;
+        this.userName = userName;
+    }
+
+    public Long getId(){
+        return id;
+    }
+
+    public String getUserName(){
+        return userName;
+    }
+}
+
 class GetApplicationsResponse {
-    List<Application> applications;
+    List<ApplicationDTO> applications;
     String message;
 
-    public List<Application> getApplications() {
+    public List<ApplicationDTO> getApplications() {
         return applications;
     }
 
@@ -76,7 +100,10 @@ class GetApplicationsResponse {
     }
 
     public GetApplicationsResponse(List<Application> applications, String message) {
-        this.applications = applications;
+        if(applications != null) {
+            this.applications = new LinkedList<>();
+            applications.stream().forEach(x->this.applications.add(new ApplicationDTO(x.getId(), x.getUserz().getLogin())));
+        }
         this.message = message;
     }
 }
@@ -91,8 +118,17 @@ public class ManagementController {
     @PostMapping("/auth")
     public ResponseEntity<TokenRequestResponse> getToken(@RequestBody AuthorizationInfo authorizationInfo) {
         try {
-            return ResponseEntity.ok().body(new TokenRequestResponse(userService.getToken(authorizationInfo.getLogin(), authorizationInfo.getPassword()).getToken(), ""));
+            return ResponseEntity.ok().body(
+                new TokenRequestResponse(
+                    userService.getToken(
+                            authorizationInfo.getLogin(),
+                            authorizationInfo.getPassword()
+                        ).getToken(),
+                        "",
+                        userService.isAdmin(authorizationInfo.getLogin())));
         } catch (WrongPasswordException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (NoSuchElementException e) {
             return ResponseEntity.badRequest().build();
         }
     }
@@ -102,12 +138,13 @@ public class ManagementController {
         try {
             return ResponseEntity.ok().body(new TokenRequestResponse(
                 userService.register(authorizationInfo.getLogin(), authorizationInfo.getPassword()).getToken(),
-                ""
+                "",
+                false
             ));
         } catch (LoginOccupiedException e) {
-            return ResponseEntity.badRequest().body(new TokenRequestResponse("", e.getMessage()));
+            return ResponseEntity.badRequest().body(new TokenRequestResponse("", e.getMessage(), false));
         } catch (PasswordOccupiedException e) {
-            return ResponseEntity.badRequest().body(new TokenRequestResponse("", e.getMessage()));
+            return ResponseEntity.badRequest().body(new TokenRequestResponse("", e.getMessage(), false));
         }
     }
 
@@ -126,7 +163,12 @@ public class ManagementController {
     @GetMapping("/applications")
     public ResponseEntity<GetApplicationsResponse> getApplications(@RequestHeader("Authorization") String token) {
         try {
-            return ResponseEntity.ok().body(new GetApplicationsResponse(userService.getApplications(token.replace("Bearer ", "")), "Ok"));
+            return ResponseEntity.ok().body(
+                new GetApplicationsResponse(
+                    userService.getApplications(
+                        token.replace("Bearer ", "")
+                    )
+            , "Ok"));
         } catch (BadTokenException e) {
             return ResponseEntity.status(HttpStatusCode.valueOf(401)).body(new GetApplicationsResponse(null, "Bad token"));
         }

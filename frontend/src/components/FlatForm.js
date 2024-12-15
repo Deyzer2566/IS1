@@ -15,13 +15,7 @@ const FlatForm = () => {
     timeToMetroByTransport: '',
     furnish: '',
     view: '',
-    house: {
-      name: '',
-      year: '',
-      numberOfFloors: '',
-      numberOfFlatsOnFloor: '',
-      numberOfLifts: ''
-    },
+    house: null, // Используем null для house, если не выбрано
     coordinates: {
       x: '',
       y: ''
@@ -29,6 +23,7 @@ const FlatForm = () => {
   });
   const [houses, setHouses] = useState([]);
   const [showNewHouseForm, setShowNewHouseForm] = useState(false);
+  const [message, setMessage] = useState('');
 
   useEffect(() => {
     if (id) {
@@ -39,6 +34,12 @@ const FlatForm = () => {
     getHouses()
       .then(response => setHouses(response.data))
       .catch(error => console.error(error));
+
+    // Восстанавливаем данные из localStorage, если они есть
+    const savedFlat = JSON.parse(localStorage.getItem('flatFormData'));
+    if (savedFlat) {
+      setFlat(savedFlat);
+    }
   }, [id]);
 
   const handleChange = (e) => {
@@ -73,14 +74,38 @@ const FlatForm = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const flatToSend = { ...flat };
+    if (!flat.house) {
+      delete flatToSend.house;
+    }
     if (id) {
-      updateFlat(id, flat)
-        .then(() => navigate('/flats'))
-        .catch(error => console.error(error));
+      updateFlat(id, flatToSend)
+        .then(response => {
+          setMessage(response.data.message);
+          navigate('/flats');
+          localStorage.removeItem('flatFormData'); // Удаляем данные из localStorage после успешного запроса
+        })
+        .catch(error => {
+          setMessage(error.response.data.message);
+          if (error.response.status === 401) {
+            localStorage.setItem('flatFormData', JSON.stringify(flatToSend)); // Сохраняем данные в localStorage перед перенаправлением
+            navigate('/auth');
+          }
+        });
     } else {
-      createFlat(flat)
-        .then(() => navigate('/flats'))
-        .catch(error => console.error(error));
+      createFlat(flatToSend)
+        .then(response => {
+          setMessage(response.data.message);
+          navigate('/flats');
+          localStorage.removeItem('flatFormData'); // Удаляем данные из localStorage после успешного запроса
+        })
+        .catch(error => {
+          setMessage(error.response.data.message);
+          if (error.response.status === 401) {
+            localStorage.setItem('flatFormData', JSON.stringify(flatToSend)); // Сохраняем данные в localStorage перед перенаправлением
+            navigate('/auth');
+          }
+        });
     }
   };
 
@@ -89,6 +114,13 @@ const FlatForm = () => {
     setFlat(prevState => ({
       ...prevState,
       house: selectedHouse
+    }));
+  };
+
+  const handleNoHouse = () => {
+    setFlat(prevState => ({
+      ...prevState,
+      house: null
     }));
   };
 
@@ -144,36 +176,37 @@ const FlatForm = () => {
       </div>
       <div>
         <label>House:</label>
-        <select name="house" value={flat.house.id || ''} onChange={handleSelectHouse}>
+        <select name="house" value={flat.house ? flat.house.id : ''} onChange={handleSelectHouse}>
           <option value="">Select House</option>
           {houses.map(house => (
             <option key={house.id} value={house.id}>{house.name}</option>
           ))}
         </select>
         <button type="button" onClick={() => setShowNewHouseForm(true)}>Create New House</button>
+        <button type="button" onClick={handleNoHouse}>No House</button>
       </div>
       {showNewHouseForm && (
         <div>
           <h3>Create New House</h3>
           <div>
             <label>Name:</label>
-            <input type="text" name="name" value={flat.house.name} onChange={handleHouseChange} required />
+            <input type="text" name="name" value={flat.house ? flat.house.name : ''} onChange={handleHouseChange} required />
           </div>
           <div>
             <label>Year:</label>
-            <input type="number" name="year" value={flat.house.year} onChange={handleHouseChange} required />
+            <input type="number" name="year" value={flat.house ? flat.house.year : ''} onChange={handleHouseChange} required />
           </div>
           <div>
             <label>Number of Floors:</label>
-            <input type="number" name="numberOfFloors" value={flat.house.numberOfFloors} onChange={handleHouseChange} required />
+            <input type="number" name="numberOfFloors" value={flat.house ? flat.house.numberOfFloors : ''} onChange={handleHouseChange} required />
           </div>
           <div>
             <label>Number of Flats on Floor:</label>
-            <input type="number" name="numberOfFlatsOnFloor" value={flat.house.numberOfFlatsOnFloor} onChange={handleHouseChange} required />
+            <input type="number" name="numberOfFlatsOnFloor" value={flat.house ? flat.house.numberOfFlatsOnFloor : ''} onChange={handleHouseChange} required />
           </div>
           <div>
             <label>Number of Lifts:</label>
-            <input type="number" name="numberOfLifts" value={flat.house.numberOfLifts} onChange={handleHouseChange} required />
+            <input type="number" name="numberOfLifts" value={flat.house ? flat.house.numberOfLifts : ''} onChange={handleHouseChange} required />
           </div>
         </div>
       )}
@@ -186,6 +219,7 @@ const FlatForm = () => {
         <input type="number" name="coordinates.y" value={flat.coordinates.y} onChange={handleChange} required />
       </div>
       <button type="submit">{id ? 'Update' : 'Create'}</button>
+      {message && <p>{message}</p>}
     </form>
   );
 };

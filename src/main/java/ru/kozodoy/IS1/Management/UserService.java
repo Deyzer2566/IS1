@@ -80,13 +80,9 @@ public class UserService {
     public TokenInfo getToken(String login, String password) throws WrongPasswordException {
         deleteTokens();
         password = getMD5(password);
-        try {
-            if (userRepository.findByLogin(login).get().getPassword().equals(password)) {
-                return generateToken(login, password);
-            } else {
-                throw new WrongPasswordException();
-            }
-        } catch (NoSuchElementException e) {
+        if (userRepository.findByLogin(login).get().getPassword().equals(password)) {
+            return generateToken(login, password);
+        } else {
             throw new WrongPasswordException();
         }
     }
@@ -119,6 +115,12 @@ public class UserService {
 
     public Userz getUserByToken(String token) throws NoSuchElementException {
         return userRepository.findByLogin(tokensInv.get(token)).get();
+    }
+
+    public Boolean isAdmin(String login) throws NoSuchElementException{
+        Userz user;
+        user = userRepository.findByLogin(login).get();
+        return user.getIsAdmin();
     }
 
     public void makeAdminApplication(String token) throws AlreadyAdminException, BadTokenException {

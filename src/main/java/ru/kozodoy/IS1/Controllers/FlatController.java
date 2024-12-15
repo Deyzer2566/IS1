@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import ru.kozodoy.IS1.Entities.*;
@@ -20,6 +21,7 @@ import ru.kozodoy.IS1.Services.FlatService;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 class FlatAndMessage {
     Flat flat;
@@ -64,8 +66,46 @@ public class FlatController {
     }
 
     @GetMapping
-    public List<Flat> getAllFlats() {
-        return flatService.findAll();
+    public List<Flat> getAllFlat(@RequestParam Optional<String> sortBy, @RequestParam Optional<Boolean> desc, @RequestParam Optional<String> filterBy, @RequestParam Optional<String> filterValue) {
+        List<Flat> flats = flatService.findAll();
+        if(sortBy.isPresent())
+            flats = flats.stream().sorted((x1,x2)->{
+                if(sortBy.get().equals("name")) {
+                    if(desc.isPresent() && desc.get()) {
+                        return x1.getName().compareTo(x2.getName());
+                    }
+                    else {
+                        return x2.getName().compareTo(x1.getName());
+                    }
+                } else if(sortBy.get().equals("furnish")) {
+                    if(desc.isPresent() && desc.get()) {
+                        return x1.getFurnish().compareTo(x2.getFurnish());
+                    }
+                    else {
+                        return x2.getFurnish().compareTo(x1.getFurnish());
+                    }
+                } else if(sortBy.get().equals("view")) {
+                    if(desc.isPresent() && desc.get()) {
+                        return x1.getView().compareTo(x2.getView());
+                    }
+                    else {
+                        return x2.getView().compareTo(x1.getView());
+                    }
+                }
+                return 0;
+            }).toList();
+        if(filterBy.isPresent() && filterValue.isPresent())
+            flats = flats.stream().filter((x)->{
+                if(filterBy.get().equals("name")) {
+                    return x.getName().contains(filterValue.get());
+                } else if(filterBy.get().equals("furnish")) {
+                    return x.getFurnish().toString().contains(filterValue.get());
+                } else if(filterBy.get().equals("view")) {
+                    return x.getView().toString().contains(filterValue.get());
+                }
+                return false;
+            }).toList();
+        return flats;
     }
 
     @PostMapping

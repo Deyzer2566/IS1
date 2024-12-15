@@ -97,11 +97,12 @@ public class FlatService {
         flat.setId(id);
         if(!usersFlatsRepository.findByUserAndFlat(user, flatRepository.findById(id).get()).isPresent() && !user.getIsAdmin())
             throw new WrongFlatOwnerException();
-        Flat flat1 = flatRepository.save(connectFlatToOtherEntities(flat));
-        if(flatRepository.findByHouse(house).size() == 0)
+        connectFlatToOtherEntities(flat);
+        flat = flatRepository.save(connectFlatToOtherEntities(flat));
+        if(house != null && flatRepository.findByHouse(house).size() == 0)
             houseRepository.delete(house);
-        historyRepository.save(new History(user, flat1.getId(), ChangeType.UPDATE));
-        return flat1;
+        historyRepository.save(new History(user, flat.getId(), ChangeType.UPDATE));
+        return flat;
     }
 
     public Flat updateFlatByToken(String token, Long id, Flat flat) throws WrongFlatOwnerException, BadTokenException{

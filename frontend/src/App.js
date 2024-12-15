@@ -3,20 +3,23 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import FlatList from './components/FlatList';
 import FlatForm from './components/FlatForm';
 import Auth from './components/Auth';
-import SpecialOperations from './components/SpecialOperations';
+import AdminDashboard from './components/AdminDashboard';
+import PrivateRoute from './components/PrivateRoute';
+import { AuthProvider } from './context/AuthContext';
 
 const App = () => {
   return (
-    <Router>
-      <Routes>
-        <Route path="/flats/:id/edit" element={<FlatForm />} />
-        <Route path="/flats/new" element={<FlatForm />} />
-        <Route path="/flats" element={<FlatList />} />
-        <Route path="/auth" element={<Auth />} />
-        <Route path="/special" element={<SpecialOperations />} />
-        <Route path="/" element={<FlatList />} />
-      </Routes>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/flats" element={<FlatList />} />
+          <Route path="/flats/new" element={<FlatForm />} />
+          <Route path="/flats/:id/edit" element={<FlatForm />} />
+          <Route path="/admin" element={<PrivateRoute><AdminDashboard /></PrivateRoute>} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 };
 

@@ -1,19 +1,26 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { auth, register } from '../services/api';
+import { login as loginApi, register} from '../services/api';
+import { useAuth } from '../context/AuthContext';
 
 const Auth = () => {
-  const [login, setlogin] = useState('');
+  const [loginName, setLoginName] = useState('');
   const [password, setPassword] = useState('');
+  const [message, setMessage] = useState('');
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleLogin = () => {
-    auth({ login, password })
+    loginApi({ login: loginName, password })
       .then(response => {
-        localStorage.setItem('token', response.data.token);
+        const { token, isAdmin } = response.data;
+        login({ token, isAdmin });
         navigate('/flats');
       })
-      .catch(error => console.error(error));
+      .catch(error => {
+        setMessage(error.response);
+        console.log(error);
+      });
   };
 
   const handleRegister = () => {
@@ -24,10 +31,11 @@ const Auth = () => {
 
   return (
     <div>
-      <input type="text" value={login} onChange={(e) => setlogin(e.target.value)} placeholder="login" />
+      <input type="text" value={loginName} onChange={(e) => setLoginName(e.target.value)} placeholder="Login" />
       <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" />
       <button onClick={handleLogin}>Login</button>
       <button onClick={handleRegister}>Register</button>
+      {message && <p>{message}</p>}
     </div>
   );
 };
