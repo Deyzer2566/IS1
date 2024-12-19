@@ -1,6 +1,7 @@
 package ru.kozodoy.IS1.Management;
 
 import java.time.LocalDateTime;
+import java.beans.Transient;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -14,6 +15,7 @@ import java.util.NoSuchElementException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import jakarta.transaction.Transactional;
 import ru.kozodoy.IS1.Repositories.ApplicationRepository;
 import ru.kozodoy.IS1.Repositories.UserRepository;
 import ru.kozodoy.IS1.Repositories.UsersFlatsRepository;
@@ -87,6 +89,7 @@ public class UserService {
         }
     }
 
+    @Transactional
     public TokenInfo register(String login, String password) throws LoginOccupiedException, PasswordOccupiedException {
         password = getMD5(password);
         if (userRepository.findByLogin(login).isPresent()) {
@@ -123,6 +126,7 @@ public class UserService {
         return user.getIsAdmin();
     }
 
+    @Transactional
     public void makeAdminApplication(String token) throws AlreadyAdminException, BadTokenException {
         Userz user;
         try {
@@ -150,6 +154,7 @@ public class UserService {
         return applicationRepository.findAll();
     }
 
+    @Transactional
     public void makeAdmin(String token, Long id) throws BadTokenException, NoSuchElementException {
         Userz user;
         try {
@@ -163,5 +168,19 @@ public class UserService {
         Application application = applicationRepository.findById(id).get();
         application.userz.setIsAdmin(true);
         applicationRepository.save(application);
+    }
+
+    @Transactional
+    public void rejectApplication(String token, Long id) throws BadTokenException, IllegalArgumentException {
+        Userz user;
+        try {
+            user = getUserByToken(token);
+        } catch (NoSuchElementException e) {
+            throw new BadTokenException();
+        }
+        if (!user.getIsAdmin()) {
+            throw new BadTokenException();
+        }
+        applicationRepository.deleteById(id);
     }
 }

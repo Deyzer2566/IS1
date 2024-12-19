@@ -182,4 +182,13 @@ public class ManagementController {
 
         }
     }
+
+    @PostMapping("/reject/{id}")
+    public void rejectApplication(@RequestHeader("Authorization") String token, @PathVariable Long id) {
+        try {
+            userService.rejectApplication(token.replace("Bearer ", ""), id);
+        } catch (BadTokenException | IllegalArgumentException e) {
+
+        }
+    }
 }

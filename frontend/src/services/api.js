@@ -37,4 +37,7 @@ export const specialOperation = (operation) => api.get(`/flat/special/${operatio
 export const getHouses = () => api.get('/flat/houses');
 export const getApplications = () => api.get('/management/applications');
 
+export const approveApplication = (applicationId) => api.post(`/management/makeadmin/${applicationId}`);
+export const rejectApplication = (applicationId) => api.post(`/management/reject/${applicationId}`);
+
 export default api;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getApplications } from '../services/api';
+import { getApplications, approveApplication, rejectApplication } from '../services/api';
 
 const AdminDashboard = () => {
   const [applications, setApplications] = useState([]);
@@ -9,6 +9,22 @@ const AdminDashboard = () => {
       .then(response => setApplications(response.data['applications']))
       .catch(error => console.error(error));
   }, []);
+
+  const handleApprove = (applicationId) => {
+    approveApplication(applicationId)
+      .then(response => {
+        setApplications(applications.filter(app => app.id !== applicationId));
+      })
+      .catch(error => console.error('Error approving application:', error));
+  };
+
+  const handleReject = (applicationId) => {
+    rejectApplication(applicationId)
+      .then(response => {
+        setApplications(applications.filter(app => app.id !== applicationId));
+      })
+      .catch(error => console.error('Error rejecting application:', error));
+  };
 
   return (
     <div>
@@ -29,8 +45,8 @@ const AdminDashboard = () => {
               <td>{app.id}</td>
               <td>{app.userName}</td>
               <td>
-                <button>Approve</button>
-                <button>Reject</button>
+                <button onClick={() => handleApprove(app.id)}>Approve</button>
+                <button onClick={() => handleReject(app.id)}>Reject</button>
               </td>
             </tr>
           ))}
