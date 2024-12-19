@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getFlats, deleteFlat } from '../services/api';
+import { getFlats, deleteFlat, getAdminRights } from '../services/api';
 import { Link, useNavigate } from 'react-router-dom';
 
 const FlatList = () => {
@@ -63,10 +63,27 @@ const FlatList = () => {
     setSortOrder(e.target.value);
   };
 
+  const handleRequestAdminRights = () => {
+    getAdminRights()
+    .then(response => {
+      message = response.data.message;
+    })
+    .catch(error => {
+      message = error.response.data.message;
+    });
+  };
+
   const itemsPerPage = 10; // Количество квартир на странице
 
   return (
     <div>
+      <button onClick={handleAddFlat}>Add Flat</button>
+      {user && user.isAdmin && (
+        <button onClick={() => navigate('/admin')}>Go to Admin Panel</button>
+      )}
+      {user && !user.isAdmin && (
+        <button onClick={handleRequestAdminRights}>Request Admin Rights</button>
+      )}
       <h1>Flats</h1>
       <button onClick={handleAddFlat}>Add Flat</button>
       <div>
