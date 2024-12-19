@@ -153,7 +153,7 @@ public class ManagementController {
         try {
             userService.makeAdminApplication(token.replace("Bearer ", ""));
             return ResponseEntity.ok().body(new SetAdminResponse("Wait, beta. Maybe one sigma would like to help u"));
-        } catch (AlreadyAdminException e) {
+        } catch (AlreadyAdminException | AlreadyExistException e) {
             return ResponseEntity.badRequest().body(new SetAdminResponse("Something goon ron, maybe u shud start mewing?"));
         } catch (BadTokenException e) {
             return ResponseEntity.status(HttpStatusCode.valueOf(401)).body(new SetAdminResponse("Bad token"));

@@ -127,7 +127,7 @@ public class UserService {
     }
 
     @Transactional
-    public void makeAdminApplication(String token) throws AlreadyAdminException, BadTokenException {
+    public void makeAdminApplication(String token) throws AlreadyAdminException, BadTokenException, AlreadyExistException {
         Userz user;
         try {
             user = getUserByToken(token);
@@ -135,7 +135,10 @@ public class UserService {
             throw new BadTokenException();
         }
         if (!user.getIsAdmin()) {
-            applicationRepository.save(new Application(user));
+            if(applicationRepository.findByUser(user).isEmpty())
+                applicationRepository.save(new Application(user));
+            else
+                throw new AlreadyExistException();
         } else {
             throw new AlreadyAdminException();
         }
