@@ -18,15 +18,20 @@ const Auth = () => {
         navigate('/flats');
       })
       .catch(error => {
-        setMessage(error.response);
-        console.log(error);
+        setMessage(error.response.data.message);
       });
   };
 
   const handleRegister = () => {
-    register({ login, password })
-      .then(() => handleLogin())
-      .catch(error => console.error(error));
+    register({ login: loginName, password })
+      .then(response => {
+        const { token, isAdmin } = response.data;
+        login({ token, isAdmin });
+        navigate('/flats');
+      })
+      .catch(error => {
+        setMessage(error.response.data.message);
+      });
   };
 
   return (

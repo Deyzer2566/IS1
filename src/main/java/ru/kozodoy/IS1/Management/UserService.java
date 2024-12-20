@@ -85,7 +85,7 @@ public class UserService {
         if (userRepository.findByLogin(login).get().getPassword().equals(password)) {
             return generateToken(login, password);
         } else {
-            throw new WrongPasswordException();
+            throw new WrongPasswordException("Smth goone 'rong, maybe u shouldn't bruteforce this poor guy??");
         }
     }
 
@@ -135,12 +135,12 @@ public class UserService {
             throw new BadTokenException();
         }
         if (!user.getIsAdmin()) {
-            if(applicationRepository.findByUser(user).isEmpty())
+            if(applicationRepository.findByUserz(user).isEmpty())
                 applicationRepository.save(new Application(user));
             else
-                throw new AlreadyExistException();
+                throw new AlreadyExistException("wait bruh, sigmas havent fanum taxed you yet");
         } else {
-            throw new AlreadyAdminException();
+            throw new AlreadyAdminException("bruhh....");
         }
     }
 
@@ -171,6 +171,7 @@ public class UserService {
         Application application = applicationRepository.findById(id).get();
         application.userz.setIsAdmin(true);
         applicationRepository.save(application);
+        applicationRepository.deleteById(id);
     }
 
     @Transactional

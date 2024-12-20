@@ -21,7 +21,7 @@ public class SpecialOperationsService {
     }
 
     public Long countWithViewLower(View view) {
-        return flatRepository.countWithViewLower(view);
+        return flatRepository.countWithViewLower(view.name());
     }
 
     public List<Flat> getAllWithTimeToMetroByTransportLowerThan(Double timeToMetroByTransport) {

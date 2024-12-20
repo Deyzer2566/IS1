@@ -127,9 +127,9 @@ public class ManagementController {
                         "",
                         userService.isAdmin(authorizationInfo.getLogin())));
         } catch (WrongPasswordException e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(new TokenRequestResponse("", e.getMessage(), false));
         } catch (NoSuchElementException e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(new TokenRequestResponse("", e.getMessage(), false));
         }
     }
 

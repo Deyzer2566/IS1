@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getFlats, deleteFlat, getAdminRights } from '../services/api';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const FlatList = () => {
   const [flats, setFlats] = useState([]);
@@ -12,6 +13,7 @@ const FlatList = () => {
   const [sortField, setSortField] = useState('');
   const [sortOrder, setSortOrder] = useState('false');
   const navigate = useNavigate();
+  const {user} = useAuth();
 
   useEffect(() => {
     fetchFlats();
@@ -23,7 +25,7 @@ const FlatList = () => {
     getFlats(currentPage, filterBy, filter, sortField, sortOrder)
       .then(response => {
         setFlats(response.data || []);
-        setTotalPages(response.data.totalPages);
+        setTotalPages(Math.ceil(response.data.length / itemsPerPage));
       })
       .catch(error => console.error(error));
   };
@@ -66,10 +68,10 @@ const FlatList = () => {
   const handleRequestAdminRights = () => {
     getAdminRights()
     .then(response => {
-      message = response.data.message;
+      setMessage(response.data.message);
     })
     .catch(error => {
-      message = error.response.data.message;
+      setMessage(error.response.data.message);
     });
   };
 
@@ -77,22 +79,22 @@ const FlatList = () => {
 
   return (
     <div>
-      <button onClick={handleAddFlat}>Add Flat</button>
       {user && user.isAdmin && (
-        <button onClick={() => navigate('/admin')}>Go to Admin Panel</button>
+        <button onClick={() => navigate('/admin')}>Dive into admin panel</button>
       )}
       {user && !user.isAdmin && (
-        <button onClick={handleRequestAdminRights}>Request Admin Rights</button>
+        <button onClick={handleRequestAdminRights}>Мне повезет!</button>
       )}
       <h1>Flats</h1>
-      <button onClick={handleAddFlat}>Add Flat</button>
+      <button onClick={handleAddFlat}>Добавить квартирку на Циан 2.0</button>
+      <button onClick={()=>navigate("/smo")}>Специальные операции</button>
       <div>
         <label>Filter by</label>
         <select value={filterBy} onChange={handleFilterByChange}>
           <option value="">Select</option>
-          <option value="name">Name</option>
-          <option value="view">View</option>
-          <option value="furnish">Furnish</option>
+          <option value="name">Имя</option>
+          <option value="view">Вид из окон</option>
+          <option value="furnish">Мебель</option>
         </select>
         <input type="text" value={filter} onChange={handleFilterChange} placeholder="Filter value" />
       </div>
@@ -100,13 +102,13 @@ const FlatList = () => {
         <label>Sort by:</label>
         <select value={sortField} onChange={handleSortChange}>
           <option value="">Select</option>
-          <option value="name">Name</option>
-          <option value="view">View</option>
-          <option value="furnish">Furnish</option>
+          <option value="name">Имя</option>
+          <option value="view">Вид из окон</option>
+          <option value="furnish">Мебель</option>
         </select>
         <select value={sortOrder} onChange={handleSortOrderChange}>
-          <option value="false">Ascending</option>
-          <option value="true">Descending</option>
+          <option value="false">По возрастанию</option>
+          <option value="true">По убыванию</option>
         </select>
       </div>
       {flats.length > 0 ? (
@@ -114,18 +116,18 @@ const FlatList = () => {
           <thead>
             <tr>
               <th>ID</th>
-              <th>Name</th>
-              <th>Area</th>
-              <th>Price</th>
-              <th>Balcony</th>
-              <th>Time to Metro on Foot</th>
-              <th>Number of Rooms</th>
-              <th>Time to Metro by Transport</th>
-              <th>Furnish</th>
-              <th>View</th>
-              <th>Coordinates X</th>
-              <th>Coordinates Y</th>
-              <th>Actions</th>
+              <th>Название</th>
+              <th>Площать</th>
+              <th>Цена</th>
+              <th>Наличие балкона</th>
+              <th>Время до метро пешком</th>
+              <th>Количество комнат</th>
+              <th>Время до метро на транспорте</th>
+              <th>Мебель</th>
+              <th>Вид из окон</th>
+              <th>Координата X</th>
+              <th>Координата Y</th>
+              <th>Действия</th>
             </tr>
           </thead>
           <tbody>
@@ -135,7 +137,7 @@ const FlatList = () => {
                 <td>{flat.name}</td>
                 <td>{flat.area}</td>
                 <td>{flat.price}</td>
-                <td>{flat.balcony ? 'Yes' : 'No'}</td>
+                <td>{flat.balcony ? 'Есть' : 'Нет'}</td>
                 <td>{flat.timeToMetroOnFoot}</td>
                 <td>{flat.numberOfRooms}</td>
                 <td>{flat.timeToMetroByTransport}</td>
@@ -144,15 +146,15 @@ const FlatList = () => {
                 <td>{flat.coordinates.x}</td>
                 <td>{flat.coordinates.y}</td>
                 <td>
-                  <Link to={`/flats/${flat.id}/edit`}>Edit</Link>
-                  <button onClick={() => handleDelete(flat.id)}>Delete</button>
+                  <Link to={`/flats/${flat.id}/edit`}>Редактировать</Link>
+                  <button onClick={() => handleDelete(flat.id)}>Удалить</button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       ) : (
-        <p>No flats available. Please add a new flat.</p>
+        <p>Список квартир пуст. Станьте первым пользователем Циан 2.0!</p>
       )}
       <div>
         {Array.from({ length: totalPages }, (_, i) => (

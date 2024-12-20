@@ -1,41 +1,41 @@
 import React, { useState, useEffect } from 'react';
 import { getApplications, approveApplication, rejectApplication } from '../services/api';
-
+import { useNavigate } from 'react-router-dom';
 const AdminDashboard = () => {
   const [applications, setApplications] = useState([]);
+  const navigate = useNavigate();
 
-  useEffect(() => {
+  const fetchApplications = () => {
     getApplications()
-      .then(response => setApplications(response.data['applications']))
-      .catch(error => console.error(error));
-  }, []);
+    .then(response => setApplications(response.data['applications']))
+    .catch(error => console.error(error));
+  }
+
+  useEffect(fetchApplications, []);
 
   const handleApprove = (applicationId) => {
     approveApplication(applicationId)
-      .then(response => {
-        setApplications(applications.filter(app => app.id !== applicationId));
-      })
+      .then(fetchApplications)
       .catch(error => console.error('Error approving application:', error));
   };
 
   const handleReject = (applicationId) => {
     rejectApplication(applicationId)
-      .then(response => {
-        setApplications(applications.filter(app => app.id !== applicationId));
-      })
+      .then(fetchApplications)
       .catch(error => console.error('Error rejecting application:', error));
   };
 
   return (
     <div>
-      <h1>Admin Dashboard</h1>
-      <h2>Applications for Admin Role</h2>
+      <h1>Админ панель</h1>
+      <button onClick={() => navigate("/flats")}>К списку квартир</button>
+      <h2>Заявки на получение админки</h2>
       <table>
         <thead>
           <tr>
-            <th>Application ID</th>
-            <th>Username</th>
-            <th>Actions</th>
+            <th>ID</th>
+            <th>Имя пользователя</th>
+            <th>Действия</th>
           </tr>
         </thead>
         

@@ -7,5 +7,5 @@ import ru.kozodoy.IS1.Management.Application;
 import ru.kozodoy.IS1.Management.Userz;
 
 public interface ApplicationRepository extends JpaRepository<Application, Long> {
-    Optional<Application> findByUser(Userz userz);
+    Optional<Application> findByUserz(Userz userz);
 }
