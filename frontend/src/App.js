@@ -7,11 +7,13 @@ import AdminDashboard from './components/AdminDashboard';
 import PrivateRoute from './components/PrivateRoute';
 import { AuthProvider } from './context/AuthContext';
 import SpecialOperations from './components/SpecialOperations';
-
+import SidePanel from './components/SidePanel';
 const App = () => {
+
   return (
-    <Router>
-      <AuthProvider>
+    <AuthProvider>
+      <Router>
+      <SidePanel>
         <Routes>
           <Route path="/auth" element={<Auth />} />
           <Route path="/flats" element={<FlatList />} />
@@ -20,8 +22,9 @@ const App = () => {
           <Route path="/admin" element={<PrivateRoute><AdminDashboard /></PrivateRoute>} />
           <Route path="/smo" element={<SpecialOperations />} />
         </Routes>
-      </AuthProvider>
-    </Router>
+        </SidePanel>
+      </Router>
+    </AuthProvider>
   );
 };
 

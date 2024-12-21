@@ -79,12 +79,12 @@ const FlatList = () => {
 
   return (
     <div>
-      {user && user.isAdmin && (
+      {/* {user && user.isAdmin && (
         <button onClick={() => navigate('/admin')}>Dive into admin panel</button>
       )}
       {user && !user.isAdmin && (
         <button onClick={handleRequestAdminRights}>Мне повезет!</button>
-      )}
+      )} */}
       <h1>Flats</h1>
       <button onClick={handleAddFlat}>Добавить квартирку на Циан 2.0</button>
       <button onClick={()=>navigate("/smo")}>Специальные операции</button>
