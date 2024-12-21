@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Navigate } from 'react-router-dom';
 import { getFlat, createFlat, updateFlat, getHouses } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 
 const FlatForm = () => {
   const { id } = useParams();
@@ -123,6 +124,10 @@ const FlatForm = () => {
       house: null
     }));
   };
+
+  const { user } = useAuth();
+  if (!user)
+    return (<Navigate to="/auth" />);
 
   return (
     <form onSubmit={handleSubmit}>

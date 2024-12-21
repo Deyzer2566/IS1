@@ -56,7 +56,6 @@ const SpecialOperations = () => {
               <th>Вид из окон</th>
               <th>Координата X</th>
               <th>Координата Y</th>
-              <th>Действия</th>
             </tr>
           </thead>
           <tbody>
@@ -74,10 +73,6 @@ const SpecialOperations = () => {
                 <td>{flat.view}</td>
                 <td>{flat.coordinates.x}</td>
                 <td>{flat.coordinates.y}</td>
-                {/* <td>
-                  <button onClick={()=>navigate(`/flats/${flat.id}/edit`)}>Редактировать</button>
-                  <button onClick={() => handleDelete(flat.id)}>Удалить</button>
-                </td> */}
               </tr>
             ))}
           </tbody>
