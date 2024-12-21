@@ -76,6 +76,10 @@ const FlatForm = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if(typeof(flat.area) == "string")
+      flat.area.replace(',','.');
+    if(typeof(flat.timeToMetroByTransport) == "string")
+      flat.timeToMetroByTransport.replace(',','.');
     const flatToSend = { ...flat };
     if (!flat.house) {
       delete flatToSend.house;
@@ -140,11 +144,11 @@ const FlatForm = () => {
       </div>
       <div>
         <label>Area:</label>
-        <input type="number" name="area" value={flat.area} onChange={handleChange} required />
+        <input type="number" name="area" value={flat.area} onChange={handleChange} required min="1" step="0.001"/>
       </div>
       <div>
         <label>Price:</label>
-        <input type="number" name="price" value={flat.price} onChange={handleChange} required />
+        <input type="number" name="price" value={flat.price} onChange={handleChange} required min="1" step="1"/>
       </div>
       <div>
         <label>Balcony:</label>
@@ -152,15 +156,15 @@ const FlatForm = () => {
       </div>
       <div>
         <label>Time to Metro on Foot:</label>
-        <input type="number" name="timeToMetroOnFoot" value={flat.timeToMetroOnFoot} onChange={handleChange} required />
+        <input type="number" name="timeToMetroOnFoot" value={flat.timeToMetroOnFoot} onChange={handleChange} required min="1" step="1"/>
       </div>
       <div>
         <label>Number of Rooms:</label>
-        <input type="number" name="numberOfRooms" value={flat.numberOfRooms} onChange={handleChange} required />
+        <input type="number" name="numberOfRooms" value={flat.numberOfRooms} onChange={handleChange} required min="0" step="1"/>
       </div>
       <div>
         <label>Time to Metro by Transport:</label>
-        <input type="number" name="timeToMetroByTransport" value={flat.timeToMetroByTransport} onChange={handleChange} required />
+        <input type="number" name="timeToMetroByTransport" value={flat.timeToMetroByTransport} onChange={handleChange} required min="1" step="0.001"/>
       </div>
       <div>
         <label>Furnish:</label>
@@ -202,29 +206,29 @@ const FlatForm = () => {
           </div>
           <div>
             <label>Year:</label>
-            <input type="number" name="year" value={flat.house ? flat.house.year : ''} onChange={handleHouseChange} required />
+            <input type="number" name="year" value={flat.house ? flat.house.year : ''} onChange={handleHouseChange} required min="1900" step="1"/>
           </div>
           <div>
             <label>Number of Floors:</label>
-            <input type="number" name="numberOfFloors" value={flat.house ? flat.house.numberOfFloors : ''} onChange={handleHouseChange} required />
+            <input type="number" name="numberOfFloors" value={flat.house ? flat.house.numberOfFloors : ''} onChange={handleHouseChange} required min="1" step="1"/>
           </div>
           <div>
             <label>Number of Flats on Floor:</label>
-            <input type="number" name="numberOfFlatsOnFloor" value={flat.house ? flat.house.numberOfFlatsOnFloor : ''} onChange={handleHouseChange} required />
+            <input type="number" name="numberOfFlatsOnFloor" value={flat.house ? flat.house.numberOfFlatsOnFloor : ''} onChange={handleHouseChange} required min="1" step="1"/>
           </div>
           <div>
             <label>Number of Lifts:</label>
-            <input type="number" name="numberOfLifts" value={flat.house ? flat.house.numberOfLifts : ''} onChange={handleHouseChange} required />
+            <input type="number" name="numberOfLifts" value={flat.house ? flat.house.numberOfLifts : ''} onChange={handleHouseChange} required min="0" step="1"/>
           </div>
         </div>
       )}
       <div>
         <label>Coordinates X:</label>
-        <input type="number" name="coordinates.x" value={flat.coordinates.x} onChange={handleChange} required />
+        <input type="number" name="coordinates.x" value={flat.coordinates.x} onChange={handleChange} required min="-10000" step="1"/>
       </div>
       <div>
         <label>Coordinates Y:</label>
-        <input type="number" name="coordinates.y" value={flat.coordinates.y} onChange={handleChange} required min="-670"/>
+        <input type="number" name="coordinates.y" value={flat.coordinates.y} onChange={handleChange} required min="-670" step="1"/>
       </div>
       <button type="submit">{id ? 'Update' : 'Create'}</button>
       {message && <p>{message}</p>}

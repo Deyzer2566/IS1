@@ -13,7 +13,7 @@ const FlatList = () => {
   const [sortField, setSortField] = useState('');
   const [sortOrder, setSortOrder] = useState('false');
   const navigate = useNavigate();
-  const {user} = useAuth();
+  const {user, logout} = useAuth();
   const [canChange, setCanChange] = useState([]);
 
   useEffect(() => {
@@ -34,7 +34,9 @@ const FlatList = () => {
         setCanChange(response.data);
       })
       .catch(response => {
-
+        if(user) {
+          logout();
+        }
       });
   };
 
