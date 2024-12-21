@@ -75,16 +75,10 @@ const FlatList = () => {
     });
   };
 
-  const itemsPerPage = 10; // Количество квартир на странице
+  const itemsPerPage = 6; // Количество квартир на странице
 
   return (
     <div>
-      {/* {user && user.isAdmin && (
-        <button onClick={() => navigate('/admin')}>Dive into admin panel</button>
-      )}
-      {user && !user.isAdmin && (
-        <button onClick={handleRequestAdminRights}>Мне повезет!</button>
-      )} */}
       <h1>Flats</h1>
       <button onClick={handleAddFlat}>Добавить квартирку на Циан 2.0</button>
       <button onClick={()=>navigate("/smo")}>Специальные операции</button>
@@ -146,7 +140,7 @@ const FlatList = () => {
                 <td>{flat.coordinates.x}</td>
                 <td>{flat.coordinates.y}</td>
                 <td>
-                  <Link to={`/flats/${flat.id}/edit`}>Редактировать</Link>
+                  <button onClick={()=>navigate(`/flats/${flat.id}/edit`)}>Редактировать</button>
                   <button onClick={() => handleDelete(flat.id)}>Удалить</button>
                 </td>
               </tr>

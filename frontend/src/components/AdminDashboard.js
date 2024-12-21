@@ -28,7 +28,6 @@ const AdminDashboard = () => {
   return (
     <div>
       <h1>Админ панель</h1>
-      <button onClick={() => navigate("/flats")}>К списку квартир</button>
       <h2>Заявки на получение админки</h2>
       <table>
         <thead>
