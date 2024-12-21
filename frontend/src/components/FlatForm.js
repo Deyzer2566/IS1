@@ -25,6 +25,7 @@ const FlatForm = () => {
   const [houses, setHouses] = useState([]);
   const [showNewHouseForm, setShowNewHouseForm] = useState(false);
   const [message, setMessage] = useState('');
+  const {logout} = useAuth();
 
   useEffect(() => {
     if (id) {
@@ -90,6 +91,7 @@ const FlatForm = () => {
           setMessage(error.response.data.message);
           if (error.response.status === 401) {
             localStorage.setItem('flatFormData', JSON.stringify(flatToSend)); // Сохраняем данные в localStorage перед перенаправлением
+            logout();
             navigate('/auth');
           }
         });
@@ -104,6 +106,7 @@ const FlatForm = () => {
           setMessage(error.response.data.message);
           if (error.response.status === 401) {
             localStorage.setItem('flatFormData', JSON.stringify(flatToSend)); // Сохраняем данные в localStorage перед перенаправлением
+            logout();
             navigate('/auth');
           }
         });
@@ -221,7 +224,7 @@ const FlatForm = () => {
       </div>
       <div>
         <label>Coordinates Y:</label>
-        <input type="number" name="coordinates.y" value={flat.coordinates.y} onChange={handleChange} required />
+        <input type="number" name="coordinates.y" value={flat.coordinates.y} onChange={handleChange} required min="-670"/>
       </div>
       <button type="submit">{id ? 'Update' : 'Create'}</button>
       {message && <p>{message}</p>}

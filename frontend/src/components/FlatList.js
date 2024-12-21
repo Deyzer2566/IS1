@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getFlats, deleteFlat, getAdminRights } from '../services/api';
+import { getFlats, deleteFlat, getRights } from '../services/api';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -14,6 +14,7 @@ const FlatList = () => {
   const [sortOrder, setSortOrder] = useState('false');
   const navigate = useNavigate();
   const {user} = useAuth();
+  const [canChange, setCanChange] = useState([]);
 
   useEffect(() => {
     fetchFlats();
@@ -28,6 +29,13 @@ const FlatList = () => {
         setTotalPages(Math.ceil(response.data.length / itemsPerPage));
       })
       .catch(error => console.error(error));
+    getRights()
+      .then(response => {
+        setCanChange(response.data);
+      })
+      .catch(response => {
+
+      });
   };
 
   const handlePageChange = (page) => {
@@ -41,7 +49,7 @@ const FlatList = () => {
         fetchFlats();
       })
       .catch(error => {
-        setMessage(error.response.data.message);
+        setMessage("Нет прав на удаление данного объекта");
       });
   };
 
@@ -63,16 +71,6 @@ const FlatList = () => {
 
   const handleSortOrderChange = (e) => {
     setSortOrder(e.target.value);
-  };
-
-  const handleRequestAdminRights = () => {
-    getAdminRights()
-    .then(response => {
-      setMessage(response.data.message);
-    })
-    .catch(error => {
-      setMessage(error.response.data.message);
-    });
   };
 
   const itemsPerPage = 6; // Количество квартир на странице
@@ -140,8 +138,9 @@ const FlatList = () => {
                 <td>{flat.coordinates.x}</td>
                 <td>{flat.coordinates.y}</td>
                 <td>
-                  <button onClick={()=>navigate(`/flats/${flat.id}/edit`)}>Редактировать</button>
-                  <button onClick={() => handleDelete(flat.id)}>Удалить</button>
+                  {canChange.includes(flat.id) && (<button onClick={()=>navigate(`/flats/${flat.id}/edit`)}>Редактировать</button>)}
+                  {canChange.includes(flat.id) && (<button onClick={() => handleDelete(flat.id)}>Удалить</button>)}
+                  {!canChange.includes(flat.id) && (<p>Пока что не ваш дом</p>)}
                 </td>
               </tr>
             ))}

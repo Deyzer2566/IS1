@@ -150,4 +150,13 @@ public class FlatController {
     public ResponseEntity<List<House>> getHouses(){
         return ResponseEntity.ok().body(flatService.getHouses());
     }
+
+    @GetMapping("/canChange")
+    public ResponseEntity<List<Long>> getFlatsWithRights(@RequestHeader("Authorization") String token){
+        try {
+            return ResponseEntity.ok().body(flatService.getFlatsWithRights(token.replace("Bearer ", "")));
+        } catch (BadTokenException e) {
+            return ResponseEntity.status(HttpStatusCode.valueOf(401)).build();
+        }
+    }
 }

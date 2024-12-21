@@ -25,6 +25,22 @@ import ru.kozodoy.IS1.Repositories.HistoryRepository;
 import ru.kozodoy.IS1.Repositories.HouseRepository;
 import ru.kozodoy.IS1.Repositories.UsersFlatsRepository;
 
+class FlatWithAccessRights {
+    private Flat flat;
+    private Boolean isOwner;
+    public FlatWithAccessRights(Flat flat, Boolean isOwner) {
+        this.flat = flat;
+        this.isOwner = isOwner;
+    }
+    public Boolean getIsOwner(){
+        return isOwner;
+    }
+
+    public Flat getFlat(){
+        return flat;
+    }
+}
+
 @Service
 public class FlatService {
     @Autowired
@@ -139,6 +155,17 @@ public class FlatService {
 
     public List<House> getHouses() {
         return houseRepository.findAll();
+    }
+
+    public List<Long> getFlatsWithRights(String token) throws BadTokenException {
+        Userz user;
+        try{
+            user = userService.getUserByToken(token);
+        } catch (NoSuchElementException e){
+            throw new BadTokenException();
+        }
+        List<UsersFlats> usersFlats = usersFlatsRepository.findAll();
+        return usersFlats.stream().filter(x->(user.getIsAdmin() || x.getUser().equals(user))).map(x->x.getFlat().getId()).toList();
     }
 
 }

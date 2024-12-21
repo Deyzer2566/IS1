@@ -14,7 +14,7 @@ const Auth = () => {
     loginApi({ login: loginName, password })
       .then(response => {
         const { token, isAdmin } = response.data;
-        login({ token, isAdmin });
+        login({ token, isAdmin, login: loginName });
         navigate('/flats');
       })
       .catch(error => {
@@ -26,7 +26,7 @@ const Auth = () => {
     register({ login: loginName, password })
       .then(response => {
         const { token, isAdmin } = response.data;
-        login({ token, isAdmin });
+        login({ token, isAdmin, login: loginName });
         navigate('/flats');
       })
       .catch(error => {

@@ -18,10 +18,12 @@ const SidePanel = ( { children }) => {
 
     return (
         <div>
-            {(window.location.pathname != "/auth") && (<button onClick={()=>{logout(); navigate("/auth");}}>Выйти из аккаунта</button>)}
+            {user && (<button onClick={()=>{logout(); navigate("/auth");}}>Выйти из аккаунта</button>)}
+            {!user && (<button onClick={()=>{navigate("/auth");}}>Авторизоваться</button>)}
             {user && user.isAdmin && (<button onClick={()=>navigate("/admin")}>Админ панель</button>)}
             {user && !user.isAdmin && (<button onClick={handleRequestAdminRights}>Мне повезет!</button>)}
             {<button onClick={()=>navigate("/flats")}>Квартиры на Циан 2.0</button>}
+            {user && user.login && (<p>Вы авторизированы как {user.login}</p>)}
             { children }
         </div>
     )
