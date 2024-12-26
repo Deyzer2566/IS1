@@ -130,6 +130,7 @@ const FlatForm = () => {
       ...prevState,
       house: null
     }));
+    setShowNewHouseForm(false);
   };
 
   const { user } = useAuth();
@@ -197,9 +198,10 @@ const FlatForm = () => {
         <button type="button" onClick={() => setShowNewHouseForm(true)}>Create New House</button>
         <button type="button" onClick={handleNoHouse}>No House</button>
       </div>
-      {showNewHouseForm && (
+      {(showNewHouseForm || (flat && flat.house)) && (
         <div>
-          <h3>Create New House</h3>
+          {!id && <h3>Create New House</h3>}
+          {id && <h3>House</h3>}
           <div>
             <label>Name:</label>
             <input type="text" name="name" value={flat.house ? flat.house.name : ''} onChange={handleHouseChange} required />
@@ -218,7 +220,7 @@ const FlatForm = () => {
           </div>
           <div>
             <label>Number of Lifts:</label>
-            <input type="number" name="numberOfLifts" value={flat.house ? flat.house.numberOfLifts : ''} onChange={handleHouseChange} required min="0" step="1"/>
+            <input type="number" name="numberOfLifts" value={flat.house ? flat.house.numberOfLifts : ''} onChange={handleHouseChange} required min="1" step="1"/>
           </div>
         </div>
       )}

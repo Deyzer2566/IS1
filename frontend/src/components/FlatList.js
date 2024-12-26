@@ -18,8 +18,8 @@ const FlatList = () => {
 
   useEffect(() => {
     fetchFlats();
-    // const interval = setInterval(fetchFlats, 1000); // Обновление каждую секунду
-    // return () => clearInterval(interval); // Очистка интервала при размонтировании компонента
+    const interval = setInterval(fetchFlats, 1000); // Обновление каждую секунду
+    return () => clearInterval(interval); // Очистка интервала при размонтировании компонента
   }, [currentPage, filter, sortField, sortOrder]);
 
   const fetchFlats = () => {
