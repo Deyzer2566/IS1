@@ -8,6 +8,7 @@ import PrivateRoute from './components/PrivateRoute';
 import { AuthProvider } from './context/AuthContext';
 import SpecialOperations from './components/SpecialOperations';
 import SidePanel from './components/SidePanel';
+import ObjectVisualization from './components/ObjectVisualisation';
 const App = () => {
 
   return (
@@ -22,6 +23,7 @@ const App = () => {
             <Route path="/admin" element={<PrivateRoute><AdminDashboard /></PrivateRoute>} />
             <Route path="/smo" element={<SpecialOperations />} />
             <Route path="/" element={<Navigate to = "/flats" />} />
+            <Route path="/visualisation" element={<ObjectVisualization />} />
           </Routes>
         </SidePanel>
       </Router>
