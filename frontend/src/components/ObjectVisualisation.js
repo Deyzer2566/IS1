@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Stage, Layer, Image } from 'react-konva';
-import { getFlats, getRights } from '../services/api';
+import { Stage, Layer, Image, Rect } from 'react-konva';
+import { getFlats, getRights, getOwner } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import Konva from 'konva';
 
 const ObjectVisualization = () => {
   const [flats, setFlats] = useState([]);
@@ -25,8 +26,17 @@ const ObjectVisualization = () => {
   const navigate = useNavigate();
   const {user, logout} = useAuth();
 
+  const [owners, setOwners] = useState({});
+  
+  const getOwners = (flats) => {
+    setOwners({});
+    return Promise.all(flats.map(flat => getOwner(flat.id)));
+  }
+
   useEffect(() => {
     fetchFlats();
+    const interval = setInterval(fetchFlats, 1000); // Обновление каждую секунду
+    return () => clearInterval(interval); // Очистка интервала при размонтировании компонента
   }, []);
 
   const normalize = (min, max, fmin, fmax) => {
@@ -64,6 +74,17 @@ const ObjectVisualization = () => {
             window.innerHeight-maxArea);
         setKY(k);
         setBY(b);
+        getOwners(response.data).then(
+          responses=>{
+            setOwners(
+              responses.map(
+                r=>{
+                  return {[Number(r.request.responseURL.match('/api/flat/(\\d+)/owner')[1])]: r.data}
+                }
+              ).reduce((a,v)=>{return {...a, ...v}})
+            )
+          }
+        )
       })
       .catch(error => console.error(error));
       getRights()
@@ -91,7 +112,8 @@ const ObjectVisualization = () => {
     <div>
       <Stage width={window.innerWidth} height={window.innerHeight} >
         <Layer>
-          {imgReady && flats.map(flat => (
+          {imgReady && flats.map(flat => {
+            return owners[flat.id] && (
             <Image
               key={flat.id}
               x={flat.coordinates.x * k_x + b_x}
@@ -100,8 +122,9 @@ const ObjectVisualization = () => {
               height={flat.area * k_area + b_area}
               image={img}
               onClick={() => handleClick(flat)}
+              fill={getColor(owners[flat.id].charCodeAt(0))}
             />
-            ))}
+            )})}
         </Layer>
       </Stage>
       {selectedFlat && (
@@ -119,6 +142,7 @@ const ObjectVisualization = () => {
           <p>Вид: {selectedFlat.view}</p>
           <p>Координаты: ({selectedFlat.coordinates.x}, {selectedFlat.coordinates.y})</p>
           {canChange && canChange.includes(selectedFlat.id) && (<button onClick={()=>navigate(`/flats/${selectedFlat.id}/edit`)}>Нашли ошибку?</button>)}
+          <button onClick={()=>{setSelectedFlat(null)}}>Закрыть объявление</button>
         </div>
       )}
     </div>

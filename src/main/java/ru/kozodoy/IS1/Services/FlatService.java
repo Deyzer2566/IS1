@@ -137,7 +137,7 @@ public class FlatService {
         Flat flat = flatRepository.findById(id).get();
         if(!usersFlatsRepository.findByUserAndFlat(user, flat).isPresent() && !user.getIsAdmin())
             throw new WrongFlatOwnerException();
-        usersFlatsRepository.delete(usersFlatsRepository.findByFlat(flat).get(0));
+        usersFlatsRepository.delete(usersFlatsRepository.findByFlat(flat).get());
         if(flat.getHouse() != null && flatRepository.findByHouse(house).size() == 0)
             houseRepository.delete(house);
         historyRepository.save(new History(user, flat.getId(), ChangeType.DELETE));
@@ -166,6 +166,10 @@ public class FlatService {
         }
         List<UsersFlats> usersFlats = usersFlatsRepository.findAll();
         return usersFlats.stream().filter(x->(user.getIsAdmin() || x.getUser().equals(user))).map(x->x.getFlat().getId()).toList();
+    }
+
+    public Userz getFlatOwner(Long flatId) throws NoSuchElementException {
+        return usersFlatsRepository.findByFlat(flatRepository.findById(flatId).get()).get().getUser();
     }
 
 }

@@ -159,4 +159,13 @@ public class FlatController {
             return ResponseEntity.status(HttpStatusCode.valueOf(401)).build();
         }
     }
+
+    @GetMapping("/{flatId}/owner")
+    public ResponseEntity<String> getOwner(@PathVariable Long flatId) {
+        try {
+            return ResponseEntity.ok().body(flatService.getFlatOwner(flatId).getLogin());
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
 }

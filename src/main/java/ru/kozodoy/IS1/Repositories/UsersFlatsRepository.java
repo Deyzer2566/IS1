@@ -11,6 +11,6 @@ import ru.kozodoy.IS1.Management.Userz;
 
 public interface UsersFlatsRepository extends JpaRepository<UsersFlats, Long>{
     List<UsersFlats> findByUser(Userz userz);
-    List<UsersFlats> findByFlat(Flat flat);
+    Optional<UsersFlats> findByFlat(Flat flat);
     Optional<UsersFlats> findByUserAndFlat(Userz user, Flat flat);
 }

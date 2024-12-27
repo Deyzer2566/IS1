@@ -140,99 +140,99 @@ const FlatForm = () => {
   return (
     <form onSubmit={handleSubmit}>
       <div>
-        <label>Name:</label>
+        <label>Название:</label>
         <input type="text" name="name" value={flat.name} onChange={handleChange} required />
       </div>
       <div>
-        <label>Area:</label>
+        <label>Площадь:</label>
         <input type="number" name="area" value={flat.area} onChange={handleChange} required min="1" step="0.001"/>
       </div>
       <div>
-        <label>Price:</label>
+        <label>Цена:</label>
         <input type="number" name="price" value={flat.price} onChange={handleChange} required min="1" step="1"/>
       </div>
       <div>
-        <label>Balcony:</label>
+        <label>Есть балкон:</label>
         <input type="checkbox" name="balcony" checked={flat.balcony} onChange={(e) => setFlat({ ...flat, balcony: e.target.checked })} />
       </div>
       <div>
-        <label>Time to Metro on Foot:</label>
+        <label>Время до метро пешком:</label>
         <input type="number" name="timeToMetroOnFoot" value={flat.timeToMetroOnFoot} onChange={handleChange} required min="1" step="1"/>
       </div>
       <div>
-        <label>Number of Rooms:</label>
+        <label>Количество комнат:</label>
         <input type="number" name="numberOfRooms" value={flat.numberOfRooms} onChange={handleChange} required min="0" step="1"/>
       </div>
       <div>
-        <label>Time to Metro by Transport:</label>
+        <label>Время до метро на транспорте:</label>
         <input type="number" name="timeToMetroByTransport" value={flat.timeToMetroByTransport} onChange={handleChange} required min="1" step="0.001"/>
       </div>
       <div>
-        <label>Furnish:</label>
+        <label>Мебель:</label>
         <select name="furnish" value={flat.furnish} onChange={handleChange} required>
-          <option value="">Select Furnish</option>
-          <option value="DESIGNER">Designer</option>
-          <option value="NONE">None</option>
-          <option value="FINE">Fine</option>
-          <option value="BAD">Bad</option>
-          <option value="LITTLE">Little</option>
+          <option value="">Ремонт</option>
+          <option value="DESIGNER">Дизайнерский</option>
+          <option value="NONE">Нет</option>
+          <option value="FINE">Прекрасный</option>
+          <option value="BAD">Срач</option>
+          <option value="LITTLE">Бабушкин ремонт</option>
         </select>
       </div>
       <div>
-        <label>View:</label>
+        <label>Вид из окна:</label>
         <select name="view" value={flat.view} onChange={handleChange} required>
-          <option value="">Select View</option>
-          <option value="STREET">Street</option>
-          <option value="BAD">Bad</option>
-          <option value="TERRIBLE">Terrible</option>
+          <option value="">Выберите элемент из списка</option>
+          <option value="STREET">Улица</option>
+          <option value="BAD">Плохой</option>
+          <option value="TERRIBLE">К&Б</option>
         </select>
       </div>
       <div>
-        <label>House:</label>
+        <label>Дом:</label>
         <select name="house" value={flat.house ? flat.house.id : ''} onChange={handleSelectHouse}>
-          <option value="">Select House</option>
+          <option value="">Выберите дом</option>
           {houses.map(house => (
             <option key={house.id} value={house.id}>{house.name}</option>
           ))}
         </select>
-        <button type="button" onClick={() => setShowNewHouseForm(true)}>Create New House</button>
-        <button type="button" onClick={handleNoHouse}>No House</button>
+        <button type="button" onClick={() => setShowNewHouseForm(true)}>Добавить дом</button>
+        <button type="button" onClick={handleNoHouse}>Без дома</button>
       </div>
       {(showNewHouseForm || (flat && flat.house)) && (
         <div>
-          {!id && <h3>Create New House</h3>}
-          {id && <h3>House</h3>}
+          {!id && <h3>Заполнение информации о доме</h3>}
+          {id && <h3>Информация о доме</h3>}
           <div>
-            <label>Name:</label>
+            <label>Название:</label>
             <input type="text" name="name" value={flat.house ? flat.house.name : ''} onChange={handleHouseChange} required />
           </div>
           <div>
-            <label>Year:</label>
+            <label>Год постройки:</label>
             <input type="number" name="year" value={flat.house ? flat.house.year : ''} onChange={handleHouseChange} required min="1900" step="1"/>
           </div>
           <div>
-            <label>Number of Floors:</label>
+            <label>Количество этажей:</label>
             <input type="number" name="numberOfFloors" value={flat.house ? flat.house.numberOfFloors : ''} onChange={handleHouseChange} required min="1" step="1"/>
           </div>
           <div>
-            <label>Number of Flats on Floor:</label>
+            <label>Количество квартир на этаже:</label>
             <input type="number" name="numberOfFlatsOnFloor" value={flat.house ? flat.house.numberOfFlatsOnFloor : ''} onChange={handleHouseChange} required min="1" step="1"/>
           </div>
           <div>
-            <label>Number of Lifts:</label>
+            <label>Количество лифтов:</label>
             <input type="number" name="numberOfLifts" value={flat.house ? flat.house.numberOfLifts : ''} onChange={handleHouseChange} required min="1" step="1"/>
           </div>
         </div>
       )}
       <div>
-        <label>Coordinates X:</label>
+        <label>Координата X:</label>
         <input type="number" name="coordinates.x" value={flat.coordinates.x} onChange={handleChange} required min="-10000" step="1"/>
       </div>
       <div>
-        <label>Coordinates Y:</label>
+        <label>Координата Y:</label>
         <input type="number" name="coordinates.y" value={flat.coordinates.y} onChange={handleChange} required min="-670" step="1"/>
       </div>
-      <button type="submit">{id ? 'Update' : 'Create'}</button>
+      <button type="submit">{id ? 'Обновить объявление' : 'Добавить объявление'}</button>
       {message && <p>{message}</p>}
     </form>
   );

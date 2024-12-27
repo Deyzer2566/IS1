@@ -1,8 +1,10 @@
 package ru.kozodoy.IS1.Controllers;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -39,7 +41,12 @@ public class SpecialOperationsController {
     }
 
     @GetMapping("/theMostExpensiveFlat")
-    public Flat getTheMostExpensiveHata(@RequestParam Long flat1, @RequestParam Long flat2, @RequestParam Long flat3) {
-        return specialOperationsService.getTheMostExpensiveHata(flat1, flat2, flat3);
+    public ResponseEntity<Flat> getTheMostExpensiveHata(@RequestParam Long flat1, @RequestParam Long flat2, @RequestParam Long flat3) {
+        try {
+            return ResponseEntity.ok().body(specialOperationsService.getTheMostExpensiveHata(flat1, flat2, flat3));
+        }
+        catch (NoSuchElementException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 }

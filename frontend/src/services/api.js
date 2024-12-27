@@ -47,4 +47,6 @@ export const getCheapestFlatWithBalcon = () => api.get("/smo/getCheapestHataWith
 export const getTheMostExpensiveFlat = (id1, id2, id3) => api.get(`/smo/theMostExpensiveFlat?flat1=${id1}&flat2=${id2}&flat3=${id3}`);
 
 export const getRights = () => api.get("/flat/canChange");
+
+export const getOwner = (flatId) => api.get(`/flat/${flatId}/owner`);
 export default api;
