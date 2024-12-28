@@ -28,16 +28,16 @@ const SpecialOperations = () => {
       </div>
       <div>
         <button onClick={() => getAllWithTimeToMetroByTransportLowerThan(timeToMetroByTransport).then((resp)=>{setResult(resp.data);setResultPrint(1);}).catch((e)=>{setResult('Введите число');setResultPrint(0);})}>Время до метро на транспорте меньше чем</button>
-        <input type="number" value={timeToMetroByTransport} onChange={(e) => setTimeToMetroByTransport(e.target.value)} placeholder='минуты'/>
+        <input type="number" value={timeToMetroByTransport} onChange={(e) => setTimeToMetroByTransport(e.target.value)} placeholder='минуты' min="0" step="1" />
       </div>
       <div>
         <button onClick={() => getCheapestFlatWithBalcon().then((resp)=>{setResult([resp.data]);setResultPrint(1);}).catch((e)=>{setResult('Неизвестная ошибка');setResultPrint(0);})}>Самая дешевая квартира с балконом</button>
       </div>
       <div>
         <button onClick={() => getTheMostExpensiveFlat(flat1,flat2,flat3).then((resp)=>{setResult([resp.data]);setResultPrint(1);}).catch((e)=>{setResult("Одна из квартир не найдена");setResultPrint(0);})}>Самая дорогая из трех квартир</button>
-        <input type="number" value={flat1} onChange={(e) => setFlat1(e.target.value)} placeholder='id первой квартиры'/>
-        <input type="number" value={flat2} onChange={(e) => setFlat2(e.target.value)} placeholder='id второй квартиры'/>
-        <input type="number" value={flat3} onChange={(e) => setFlat3(e.target.value)} placeholder='id третьей квартиры'/>
+        <input type="number" value={flat1} onChange={(e) => setFlat1(e.target.value)} placeholder='id первой квартиры' min="0" step="1" />
+        <input type="number" value={flat2} onChange={(e) => setFlat2(e.target.value)} placeholder='id второй квартиры' min="0" step="1" />
+        <input type="number" value={flat3} onChange={(e) => setFlat3(e.target.value)} placeholder='id третьей квартиры' min="0" step="1" />
       </div>
       {(resultPrint == 0) && <p>{result}</p>}
       {(resultPrint == 1) && ((result.length > 0) ? (
