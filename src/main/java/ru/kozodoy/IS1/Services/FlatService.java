@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.validation.ConstraintViolationException;
 import ru.kozodoy.IS1.Entities.Coordinates;
 import ru.kozodoy.IS1.Entities.Flat;
 import ru.kozodoy.IS1.Entities.House;
@@ -170,6 +171,17 @@ public class FlatService {
 
     public Userz getFlatOwner(Long flatId) throws NoSuchElementException {
         return usersFlatsRepository.findByFlat(flatRepository.findById(flatId).get()).get().getUser();
+    }
+
+    @Transactional
+    public void importManyObjects(List<Flat> flats, String token) throws BadTokenException, ConstraintViolationException {
+        Userz user;
+        try {
+            user = userService.getUserByToken(token);
+        } catch (NoSuchElementException e) {
+            throw new BadTokenException();
+        }
+        flats.stream().forEach(x -> addFlat(user, x));
     }
 
 }
