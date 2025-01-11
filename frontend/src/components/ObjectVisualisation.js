@@ -35,7 +35,7 @@ const ObjectVisualization = () => {
 
   useEffect(() => {
     fetchFlats();
-    const interval = setInterval(fetchFlats, 1000); // Обновление каждую секунду
+    const interval = setInterval(fetchFlats, 10000); // Обновление каждую секунду
     return () => clearInterval(interval); // Очистка интервала при размонтировании компонента
   }, []);
 
@@ -64,14 +64,14 @@ const ObjectVisualization = () => {
             Math.min(...response.data.map(flat=>flat.coordinates.x)),
             Math.max(...response.data.map(flat=>flat.coordinates.x)),
             0,
-            window.innerWidth-maxArea);
+            window.innerWidth-maxArea-100);
         setKX(k);
         setBX(b);
         [k,b] = normalize(
             Math.min(...response.data.map(flat=>flat.coordinates.y)),
             Math.max(...response.data.map(flat=>flat.coordinates.y)),
             0,
-            window.innerHeight-maxArea);
+            window.innerHeight-maxArea-100);
         setKY(k);
         setBY(b);
         getOwners(response.data).then(
@@ -110,7 +110,7 @@ const ObjectVisualization = () => {
 
   return (
     <div>
-      <Stage width={window.innerWidth} height={window.innerHeight} >
+      <Stage width={window.innerWidth-100} height={window.innerHeight-100} >
         <Layer>
           {imgReady && flats.map(flat => {
             return owners[flat.id] && (
@@ -127,7 +127,7 @@ const ObjectVisualization = () => {
             )})}
         </Layer>
       </Stage>
-      {selectedFlat && (
+      {selectedFlat && flats.map(flat=>flat.id).includes(selectedFlat.id) && (
         <div style={{ position: 'absolute', top: 10, left: 10, background: 'white', padding: 10, border: '1px solid black' }}>
           <h3>Информация о квартирке</h3>
           <p>ID: {selectedFlat.id}</p>

@@ -28,7 +28,7 @@ const FlatList = () => {
         setFlats(response.data || []);
         setTotalPages(Math.ceil(response.data.length / itemsPerPage));
         if (currentPage > totalPages)
-          setCurrentPage(totalPages);
+          setCurrentPage(1);
       })
       .catch(error => console.error(error));
     getRights()
