@@ -16,9 +16,9 @@ import ru.kozodoy.IS1.Entities.House;
 import ru.kozodoy.IS1.Management.BadTokenException;
 import ru.kozodoy.IS1.Management.ChangeType;
 import ru.kozodoy.IS1.Management.History;
-import ru.kozodoy.IS1.Management.ImportHistory;
-import ru.kozodoy.IS1.Management.ImportHistoryService;
-import ru.kozodoy.IS1.Management.ImportStatus;
+import ru.kozodoy.IS1.Management.ExportHistory;
+import ru.kozodoy.IS1.Management.ExportHistoryService;
+import ru.kozodoy.IS1.Management.ExportStatus;
 import ru.kozodoy.IS1.Management.UserService;
 import ru.kozodoy.IS1.Management.UsersFlats;
 import ru.kozodoy.IS1.Management.Userz;
@@ -66,7 +66,7 @@ public class FlatService {
     UserService userService;
 
     @Autowired
-    ImportHistoryService importHistoryService;
+    ExportHistoryService exportHistoryService;
 
     public Optional<Flat> findById(Long id){
         return flatRepository.findById(id);
@@ -187,16 +187,16 @@ public class FlatService {
         } catch (NoSuchElementException e) {
             throw new BadTokenException();
         }
-        ImportHistory importHistory = importHistoryService.createNewInstance(user);
+        ExportHistory exportHistory = exportHistoryService.createNewInstance(user);
         try {
             flats.stream().forEach(x -> addFlat(user, x));
-            importHistory.setImportStatus(ImportStatus.SUCCESS);
-            importHistory.setFlatsAdded(Long.valueOf(flats.size()));
+            exportHistory.setExportStatus(ExportStatus.SUCCESS);
+            exportHistory.setFlatsAdded(Long.valueOf(flats.size()));
         } catch (ConstraintViolationException e) {
-            importHistory.setImportStatus(ImportStatus.FAIL);
+            exportHistory.setExportStatus(ExportStatus.FAIL);
             throw e;
         } finally {
-            importHistoryService.saveInstance(importHistory);
+            exportHistoryService.saveInstance(exportHistory);
         }
     }
 

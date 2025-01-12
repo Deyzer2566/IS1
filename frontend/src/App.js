@@ -9,6 +9,7 @@ import { AuthProvider } from './context/AuthContext';
 import SpecialOperations from './components/SpecialOperations';
 import SidePanel from './components/SidePanel';
 import ObjectVisualization from './components/ObjectVisualisation';
+import ExportForm from './components/ExportForm';
 const App = () => {
 
   return (
@@ -24,6 +25,7 @@ const App = () => {
             <Route path="/smo" element={<SpecialOperations />} />
             <Route path="/" element={<Navigate to = "/flats" />} />
             <Route path="/visualisation" element={<ObjectVisualization />} />
+            <Route path="/export" element={<ExportForm />} />
           </Routes>
         </SidePanel>
       </Router>

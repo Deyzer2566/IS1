@@ -49,4 +49,11 @@ export const getTheMostExpensiveFlat = (id1, id2, id3) => api.get(`/smo/theMostE
 export const getRights = () => api.get("/flat/canChange");
 
 export const getOwner = (flatId) => api.get(`/flat/${flatId}/owner`);
+
+export const getExportHistory = () => api.get(`/management/exportHistory`);
+export const exportFlats = (flats) => api.post(`/flat/export`, flats, {
+  headers: {
+  'Content-Type': 'multipart/form-data', // Указание типа контента
+  }
+});
 export default api;

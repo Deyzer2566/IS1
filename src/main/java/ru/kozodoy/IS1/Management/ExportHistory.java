@@ -1,5 +1,7 @@
 package ru.kozodoy.IS1.Management;
 
+import org.springframework.boot.autoconfigure.web.WebProperties.Resources.Chain.Strategy;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -12,27 +14,27 @@ import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
-public class ImportHistory {
+public class ExportHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    @ManyToOne()
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @ManyToOne(cascade = {CascadeType.REFRESH})
+    @JoinColumn(name = "user_id")
     @NotNull
     Userz userz;
 
     @Enumerated(EnumType.STRING)
     @NotNull
-    private ImportStatus importStatus;
+    private ExportStatus exportStatus;
 
     Long flatsAdded;    
 
-    public ImportHistory(Userz user){
+    public ExportHistory(Userz user){
         this.userz = user;
     }
 
-    public ImportHistory(){
+    public ExportHistory(){
         
     }
 
@@ -40,7 +42,23 @@ public class ImportHistory {
         this.flatsAdded = flatsAdded;
     }
 
-    public void setImportStatus(ImportStatus importStatus) {
-        this.importStatus = importStatus;
+    public void setExportStatus(ExportStatus exportStatus) {
+        this.exportStatus = exportStatus;
+    }
+
+    public Userz getUserz() {
+        return userz;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public ExportStatus getExportStatus() {
+        return exportStatus;
+    }
+
+    public Long getFlatsAdded() {
+        return flatsAdded;
     }
 }

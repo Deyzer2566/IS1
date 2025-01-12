@@ -24,6 +24,7 @@ const SidePanel = ( { children }) => {
             {user && !user.isAdmin && (<button onClick={handleRequestAdminRights}>Мне повезет!</button>)}
             {<button onClick={()=>navigate("/flats")}>Квартиры на Циан 2.0</button>}
             {<button onClick={()=>navigate("/visualisation")}>Квартиры Циан 2.0 на карте</button>}
+            {user && <button onClick={()=>navigate("/export")}>Экспорт</button>}
             {user && user.login && (<p>Вы авторизированы как {user.login}</p>)}
             { children }
         </div>

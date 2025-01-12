@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
 import ru.kozodoy.IS1.Repositories.ApplicationRepository;
+import ru.kozodoy.IS1.Repositories.ExportHistoryRepository;
 import ru.kozodoy.IS1.Repositories.UserRepository;
 import ru.kozodoy.IS1.Repositories.UsersFlatsRepository;
 
@@ -55,6 +56,9 @@ public class UserService {
     HashMap<String, String> tokensInv;
 
     LinkedList<TokenInfo> tokenInfos;
+
+    @Autowired
+    ExportHistoryRepository exportHistoryRepository;
 
     public UserService() {
         tokensInv = new HashMap<>();
@@ -186,5 +190,15 @@ public class UserService {
             throw new BadTokenException();
         }
         applicationRepository.deleteById(id);
+    }
+
+    public List<ExportHistory> getExportHistory(String token) throws BadTokenException {
+        Userz user;
+        try {
+            user = getUserByToken(token);
+        } catch (NoSuchElementException e) {
+            throw new BadTokenException();
+        }
+        return exportHistoryRepository.findByUserz(user);
     }
 }

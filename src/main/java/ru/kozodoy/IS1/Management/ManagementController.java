@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -189,6 +190,16 @@ public class ManagementController {
             userService.rejectApplication(token.replace("Bearer ", ""), id);
         } catch (BadTokenException | IllegalArgumentException e) {
 
+        }
+    }
+
+    @GetMapping("/exportHistory")
+    public ResponseEntity<List<ExportHistory>> getExportHistory(@RequestHeader("Authorization") String token) {
+        try {
+            // возвращаем ВСЮ информацию о пользователе и истории экспорта
+            return ResponseEntity.ok().body(userService.getExportHistory(token.replace("Bearer ", "")));
+        } catch (BadTokenException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
 }

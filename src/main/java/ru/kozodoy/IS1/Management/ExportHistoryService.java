@@ -6,21 +6,21 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.annotation.RequestScope;
 
-import ru.kozodoy.IS1.Repositories.ImportHistoryRepository;
+import ru.kozodoy.IS1.Repositories.ExportHistoryRepository;
 
 @Service
 @RequestScope
-public class ImportHistoryService {
+public class ExportHistoryService {
 
     @Autowired
-    ImportHistoryRepository importHistoryRepository;
+    ExportHistoryRepository exportHistoryRepository;
 
-    public ImportHistory createNewInstance(Userz userz) {
-        return new ImportHistory(userz);
+    public ExportHistory createNewInstance(Userz userz) {
+        return new ExportHistory(userz);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void saveInstance(ImportHistory importHistory) {
-        importHistoryRepository.save(importHistory);
+    public void saveInstance(ExportHistory exportHistory) {
+        exportHistoryRepository.save(exportHistory);
     }
 }

@@ -47,4 +47,8 @@ public class Userz { // postgres is a shit
     public void setIsAdmin(boolean isAdmin){
         this.isAdmin=isAdmin;
     }
+
+    public Long getId() {
+        return id;
+    }
 }
