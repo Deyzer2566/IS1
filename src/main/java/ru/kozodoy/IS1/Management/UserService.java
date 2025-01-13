@@ -199,6 +199,9 @@ public class UserService {
         } catch (NoSuchElementException e) {
             throw new BadTokenException();
         }
-        return exportHistoryRepository.findByUserz(user);
+        if(user.getIsAdmin())
+            return exportHistoryRepository.findAll();
+        else
+            return exportHistoryRepository.findByUserz(user);
     }
 }
