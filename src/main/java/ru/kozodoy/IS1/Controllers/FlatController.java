@@ -191,7 +191,7 @@ public class FlatController {
 
             // Добавление объектов в БД
             flatService.importManyObjects(objects, token.replace("Bearer ", ""));
-            return ResponseEntity.ok().build(); // Возвращаем список объектов в ответе
+            return ResponseEntity.ok().build();
         } catch (IOException | ConstraintViolationException e) {
             return ResponseEntity.badRequest().body("Ошибка обработки файла");
         } catch (BadTokenException e) {
