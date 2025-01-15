@@ -5,12 +5,13 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+import org.hibernate.StaleObjectStateException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.validation.ConstraintViolationException;
-import ru.kozodoy.IS1.Entities.Coordinates;
 import ru.kozodoy.IS1.Entities.Flat;
 import ru.kozodoy.IS1.Entities.House;
 import ru.kozodoy.IS1.Management.BadTokenException;
@@ -90,7 +91,7 @@ public class FlatService {
         return flat;
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
     public Flat addFlat(Userz user, Flat flat) {
         flat.setCreationDate(LocalDateTime.now());
         Flat flat1 = flatRepository.save(connectFlatToOtherEntities(flat));
@@ -111,7 +112,7 @@ public class FlatService {
         return addFlat(user, flat);
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public Flat updateFlat(Userz user, Long id, Flat flat) throws WrongFlatOwnerException {
         if(!flatRepository.findById(id).isPresent()){
             return addFlat(user, flat);
@@ -138,16 +139,21 @@ public class FlatService {
         return updateFlat(user, id, flat);
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public void deleteFlat(Userz user, Long id) throws WrongFlatOwnerException {
-        House house = flatRepository.findById(id).get().getHouse();
-        Flat flat = flatRepository.findById(id).get();
-        if(!usersFlatsRepository.findByUserAndFlat(user, flat).isPresent() && !user.getIsAdmin())
+        try {
+            House house = flatRepository.findById(id).get().getHouse();
+            Flat flat = flatRepository.findById(id).get();
+            if(!usersFlatsRepository.findByUserAndFlat(user, flat).isPresent() && !user.getIsAdmin())
+                throw new WrongFlatOwnerException();
+            usersFlatsRepository.delete(usersFlatsRepository.findByFlat(flat).get());
+            if(flat.getHouse() != null && flatRepository.findByHouse(house).size() == 0)
+                houseRepository.delete(house);
+            historyRepository.save(new History(user, flat.getId(), ChangeType.DELETE));
+        }
+        catch (StaleObjectStateException ignore) {
             throw new WrongFlatOwnerException();
-        usersFlatsRepository.delete(usersFlatsRepository.findByFlat(flat).get());
-        if(flat.getHouse() != null && flatRepository.findByHouse(house).size() == 0)
-            houseRepository.delete(house);
-        historyRepository.save(new History(user, flat.getId(), ChangeType.DELETE));
+        }
     }
 
     public void deleteFlatByToken(String token, Long id) throws WrongFlatOwnerException, BadTokenException {

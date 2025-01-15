@@ -193,7 +193,7 @@ public class FlatController {
             flatService.importManyObjects(objects, token.replace("Bearer ", ""));
             return ResponseEntity.ok().build();
         } catch (IOException | ConstraintViolationException e) {
-            return ResponseEntity.badRequest().body("Ошибка обработки файла");
+            return ResponseEntity.badRequest().body("Ошибка обработки файла: "+e.getMessage());
         } catch (BadTokenException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }

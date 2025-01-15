@@ -1,0 +1,56 @@
+- name: "Cozy Apartment"
+  coordinates:
+    x: 12
+    y: 345
+  area: 50.5
+  price: 120000
+  balcony: true
+  timeToMetroOnFoot: 10
+  numberOfRooms: 2
+  timeToMetroByTransport: 5.0
+  furnish: "DESIGNER"
+  view: "STREET"
+  house:
+    name: "Sunshine Tower"
+    year: 2010
+    numberOfFloors: 20
+    numberOfFlatsOnFloor: 5
+    numberOfLifts: 2
+
+- name: "Modern Loft"
+  coordinates:
+    x: 45
+    y: 567
+  area: 80.0
+  price: 200000
+  balcony: false
+  timeToMetroOnFoot: 15
+  numberOfRooms: 3
+  timeToMetroByTransport: 7.5
+  furnish: "FINE"
+  view: "BAD"
+  house:
+    name: "Green Gardens"
+    year: 2015
+    numberOfFloors: 15
+    numberOfFlatsOnFloor: 8
+    numberOfLifts: 3
+
+- name: "Compact Studio"
+  coordinates:
+    x: 78
+    y: -670
+  area: 30.0
+  price: 80000
+  balcony: true
+  timeToMetroOnFoot: 5
+  numberOfRooms: 1
+  timeToMetroByTransport: 2.0
+  furnish: "NONE"
+  view: "TERRIBLE"
+  house:
+    name: "Urban Heights"
+    year: 2005
+    numberOfFloors: 25
+    numberOfFlatsOnFloor: 6
+    numberOfLifts: 4
