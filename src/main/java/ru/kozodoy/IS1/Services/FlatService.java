@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.validation.ConstraintViolationException;
+import ru.kozodoy.IS1.AdditionalStuff.CustomValidator;
 import ru.kozodoy.IS1.Entities.Flat;
 import ru.kozodoy.IS1.Entities.House;
 import ru.kozodoy.IS1.Management.BadTokenException;
@@ -69,6 +70,9 @@ public class FlatService {
     @Autowired
     ExportHistoryService exportHistoryService;
 
+    @Autowired
+    CustomValidator validator;
+
     public Optional<Flat> findById(Long id){
         return flatRepository.findById(id);
     }
@@ -94,7 +98,10 @@ public class FlatService {
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public Flat addFlat(Userz user, Flat flat) {
         flat.setCreationDate(LocalDateTime.now());
-        Flat flat1 = flatRepository.save(connectFlatToOtherEntities(flat));
+        flat = connectFlatToOtherEntities(flat);
+        if(!validator.isValid(flat.getCoordinates()))
+            throw new ConstraintViolationException(null);
+        Flat flat1 = flatRepository.save(flat);
         Optional<UsersFlats> usersFlats = usersFlatsRepository.findByUserAndFlat(user, flat1);
         if(!usersFlats.isPresent())
             usersFlatsRepository.save(new UsersFlats(user, flat1));
@@ -122,6 +129,8 @@ public class FlatService {
         if(!usersFlatsRepository.findByUserAndFlat(user, flatRepository.findById(id).get()).isPresent() && !user.getIsAdmin())
             throw new WrongFlatOwnerException();
         connectFlatToOtherEntities(flat);
+        if(!validator.isValid(flat.getCoordinates()))
+            throw new ConstraintViolationException(null);
         flat = flatRepository.save(connectFlatToOtherEntities(flat));
         if(house != null && flatRepository.findByHouse(house).size() == 0)
             houseRepository.delete(house);

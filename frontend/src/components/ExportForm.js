@@ -20,7 +20,7 @@ const ExportForm = () => {
     e.preventDefault();
     const formData = new FormData();
     formData.append('file', file);
-    exportFlats(formData).then(()=>setMessage('Гуд')).catch(()=>setMessage('Что-то не так'));
+    exportFlats(formData).then(()=>{setMessage('Гуд'); fetchExports();}).catch(()=>{setMessage('Что-то не так'); fetchExports();});
   }
 
   const handleFileChange = (e) => {
