@@ -16,9 +16,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
+import io.minio.errors.ErrorResponseException;
+import io.minio.errors.InsufficientDataException;
+import io.minio.errors.InternalException;
+import io.minio.errors.InvalidResponseException;
 import jakarta.validation.ConstraintViolationException;
 import ru.kozodoy.IS1.Entities.*;
 import ru.kozodoy.IS1.Management.BadTokenException;
@@ -26,6 +31,8 @@ import ru.kozodoy.IS1.Management.WrongFlatOwnerException;
 import ru.kozodoy.IS1.Services.FlatService;
 
 import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -183,17 +190,11 @@ public class FlatController {
         }
 
         try {
-            // Создаем ObjectMapper с поддержкой YAML
-            ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
-            // Читаем содержимое файла в список объектов
-            List<Flat> objects = objectMapper.readValue(file.getInputStream(),
-                    objectMapper.getTypeFactory().constructCollectionType(List.class, Flat.class));
-
             // Добавление объектов в БД
-            flatService.importManyObjects(objects, token.replace("Bearer ", ""));
+            flatService.importManyObjects(file, token.replace("Bearer ", ""));
             return ResponseEntity.ok().build();
-        } catch (IOException | ConstraintViolationException e) {
-            return ResponseEntity.badRequest().body("Ошибка обработки файла: "+e.getMessage());
+        } catch (IOException | ConstraintViolationException | ErrorResponseException | InsufficientDataException | InternalException | InvalidKeyException | InvalidResponseException | NoSuchAlgorithmException e) {
+            return ResponseEntity.badRequest().body("Ошибка обработки файла: " + e.getMessage());
         } catch (BadTokenException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }

@@ -1,7 +1,5 @@
 package ru.kozodoy.IS1.Management;
 
-import org.springframework.boot.autoconfigure.web.WebProperties.Resources.Chain.Strategy;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -28,7 +26,7 @@ public class ExportHistory {
     @NotNull
     private ExportStatus exportStatus;
 
-    Long flatsAdded;    
+    Long flatsAdded;
 
     public ExportHistory(Userz user){
         this.userz = user;

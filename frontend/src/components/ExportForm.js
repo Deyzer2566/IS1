@@ -5,28 +5,39 @@ import { useAuth } from '../context/AuthContext';
 
 const ExportForm = () => {
   const [exports, setExports] = useState([]);
-  const [file, setFile] = useState(null);
   const [message, setMessage] = useState('');
+  const navigate = useNavigate();
+  const {logout} = useAuth();
 
   const fetchExports = () => {
     getExportHistory()
       .then(response => {
         setExports(response.data || []);
       })
-      .catch(error => console.error(error));
+      .catch(error => {console.error(error); if(error.status == 401) {logout(); navigate("/auth");}});
   };
 
   const handleSubmit = (e) => {
+    setMessage('Ожидание...');
     e.preventDefault();
-    const formData = new FormData();
-    formData.append('file', file);
-    exportFlats(formData).then(()=>{setMessage('Гуд'); fetchExports();}).catch(()=>{setMessage('Что-то не так'); fetchExports();});
+    const formData = new FormData(e.target);
+    exportFlats(formData).then(()=>setMessage('Гуд')).catch((err)=>{
+      if(err.status == 400) {
+        if(err.response.data == 'Ошибка обработки файла: null')
+          setMessage('Ошибка обработки файла: Координаты должны быть уникальными!')
+        else setMessage(err.response.data);
+      }
+      else if (err.status == 500)
+        setMessage('Ошибка на стороне сервера')
+      else if (err.status == 401) {
+        logout();
+        navigate("/auth");
+      }
+    }).finally(() => {
+      fetchExports();
+      e.target.reset();
+    });
   }
-
-  const handleFileChange = (e) => {
-    const value = e.target.files[0];
-    setFile(value);
-  };
 
   useEffect(fetchExports, []);
 
@@ -34,7 +45,7 @@ const ExportForm = () => {
     <div>
       <h1>Экспорт файлов</h1>
       <form onSubmit={handleSubmit}>
-        <input type="file" name="file" onChange={handleFileChange} required />
+        <input type="file" name="file" required />
         <button type="submit">Загрузить файл</button>
       </form>
       {message && <p>{message}</p>}
@@ -51,7 +62,8 @@ const ExportForm = () => {
           <tbody>
             {exports.map(export_ => (
               <tr key={export_.id}>
-                <td>{export_.id}</td>
+                {export_.exportStatus == "SUCCESS" && <td><a href={`http://localhost:8080/api/management/export/${export_.id}.yaml`} download>{export_.id}</a></td>}
+                {export_.exportStatus == "FAIL" && <td>{export_.id}</td>}
                 <td>{export_.userz.login}</td>
                 <td>{export_.exportStatus}</td>
                 <td>{export_.flatsAdded ? export_.flatsAdded : "-"}</td>

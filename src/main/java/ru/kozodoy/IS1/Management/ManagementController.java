@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import ru.kozodoy.IS1.Services.MinioService;
 
 class AuthorizationInfo {
     String login;
@@ -116,6 +120,9 @@ public class ManagementController {
     @Autowired
     UserService userService;
 
+    @Autowired
+    MinioService minioService;
+
     @PostMapping("/auth")
     public ResponseEntity<TokenRequestResponse> getToken(@RequestBody AuthorizationInfo authorizationInfo) {
         try {
@@ -200,6 +207,15 @@ public class ManagementController {
             return ResponseEntity.ok().body(userService.getExportHistory(token.replace("Bearer ", "")));
         } catch (BadTokenException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+    }
+
+    @GetMapping("/export/{id}")
+    public ResponseEntity<Resource> getFile(@PathVariable String id) {
+        try {
+            return ResponseEntity.ok().body(new InputStreamResource(minioService.getFile(id)));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
 }
