@@ -191,7 +191,7 @@ public class FlatController {
 
         try {
             // Добавление объектов в БД
-            flatService.importManyObjects(file, token.replace("Bearer ", ""));
+            flatService.importManyObjects(file, token.replace("Bearer ", ""), false);
             return ResponseEntity.ok().build();
         } catch (IOException | ConstraintViolationException | ErrorResponseException | InsufficientDataException | InternalException | InvalidKeyException | InvalidResponseException | NoSuchAlgorithmException e) {
             return ResponseEntity.badRequest().body("Ошибка обработки файла: " + e.getMessage());

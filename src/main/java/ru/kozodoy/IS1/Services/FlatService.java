@@ -210,8 +210,8 @@ public class FlatService {
         return usersFlatsRepository.findByFlat(flatRepository.findById(flatId).get()).get().getUser();
     }
 
-    @Transactional
-    public void importManyObjects(MultipartFile file, String token) throws BadTokenException, ConstraintViolationException, ErrorResponseException, InsufficientDataException, InternalException, InvalidKeyException, InvalidResponseException, IOException, NoSuchAlgorithmException, StreamReadException, DatabindException {
+    @Transactional(rollbackFor={Exception.class, RuntimeException.class})
+    public void importManyObjects(MultipartFile file, String token, boolean rtException) throws BadTokenException, ConstraintViolationException, ErrorResponseException, InsufficientDataException, InternalException, InvalidKeyException, InvalidResponseException, IOException, NoSuchAlgorithmException, StreamReadException, DatabindException {
         Userz user;
         try {
             user = userService.getUserByToken(token);
@@ -226,21 +226,24 @@ public class FlatService {
             List<Flat> objects = objectMapper.readValue(file.getInputStream(),
                     objectMapper.getTypeFactory().constructCollectionType(List.class, Flat.class));
             objects.stream().forEach(x -> addFlat(user, x));
-            minioService.uploadFile(String.valueOf(exportHistory.getId()), file.getInputStream(), file.getSize(), file.getContentType());
+            if(rtException)
+                throw new RuntimeException();
             exportHistory.setExportStatus(ExportStatus.SUCCESS);
             exportHistory.setFlatsAdded(Long.valueOf(objects.size()));
-        } catch (ConstraintViolationException e) {
+        } catch (Exception e) {
             exportHistory.setExportStatus(ExportStatus.FAIL);
             throw e;
         } finally {
             exportHistoryService.saveInstance(exportHistory);
-            try {
-                minioService.uploadFile(String.valueOf(exportHistory.getId())+".yaml", file.getInputStream(), file.getSize(), file.getContentType());
-            } catch (ErrorResponseException | InsufficientDataException | InternalException | InvalidKeyException | InvalidResponseException | IOException | NoSuchAlgorithmException e) {
-                exportHistory.setExportStatus(ExportStatus.FAIL);
-                exportHistory.setFlatsAdded(null);
-                exportHistoryService.saveInstance(exportHistory);
-                throw e;
+            if(exportHistory.getExportStatus().equals(ExportStatus.SUCCESS)) {
+                try {
+                    minioService.uploadFile(String.valueOf(exportHistory.getId())+".yaml", file.getInputStream(), file.getSize(), file.getContentType());
+                } catch (ErrorResponseException | InsufficientDataException | InternalException | InvalidKeyException | InvalidResponseException | IOException | NoSuchAlgorithmException e) {
+                    exportHistory.setExportStatus(ExportStatus.FAIL);
+                    exportHistory.setFlatsAdded(null);
+                    exportHistoryService.saveInstance(exportHistory);
+                    throw e;
+                }
             }
         }
     }
